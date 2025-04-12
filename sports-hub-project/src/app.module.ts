@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CoreModule } from '../../core/core.module';
-import { SharedModule } from '../../shared/shared.module';
-import { TeamsModule } from '../../modules/teams/teams.module';
-import { AppModule as AppModuleNew } from '../../modules/app/app.module';
-import { validate } from '../../config/env.validation';
+import { CoreModule } from './core/core.module';
+import { SharedModule } from './shared/shared.module';
+import { TeamsModule } from './modules/teams/teams.module';
+import { PingModule } from './modules/ping/ping.module';
+import { validate } from './config/env.validation';
 import {
   databaseConfig,
   jwtConfig,
@@ -12,7 +12,7 @@ import {
   redisConfig,
   uploadConfig,
   securityConfig,
-} from '../../config/configuration';
+} from './config/configuration';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import {
     CoreModule,
     SharedModule,
     TeamsModule,
-    AppModuleNew,
+    PingModule,
   ],
 })
 export class AppModule {}

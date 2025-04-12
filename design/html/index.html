@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SportsHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="assets/main.js" defer></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                light: "#3b82f6",
+                dark: "#1d4ed8",
+              },
+              secondary: {
+                light: "#10b981",
+                dark: "#059669",
+              },
+              accent: {
+                yellow: "#fcd34d",
+                blue: "#60a5fa",
+                green: "#34d399",
+                red: "#f87171",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .card-shadow {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+      }
+
+      .activity-card {
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+      }
+      .badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        border-radius: 20px;
+        padding: 2px 8px;
+        font-size: 12px;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .avatar-sm {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .sport-icon {
+        width: 24px;
+        height: 24px;
+      }
+      <style>
+        .swiper-container {
+          width: 100vw;
+          margin-left: calc(-50vw + 50%);
+          margin-right: calc(-50vw + 50%);
+        }
+      </style>
+    </style>
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- 轮播图组件 -->
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <img
+            src="assets/basketball.svg"
+            alt="篮球运动"
+            class="w-full h-48 object-contain"
+          />
+        </div>
+        <div class="swiper-slide">
+          <img
+            src="assets/football.svg"
+            alt="足球运动"
+            class="w-full h-48 object-contain"
+          />
+        </div>
+        <div class="swiper-slide">
+          <img
+            src="assets/climbing.svg"
+            alt="攀岩运动"
+            class="w-full h-48 object-contain"
+          />
+        </div>
+        <div class="swiper-slide">
+          <img
+            src="assets/tennis.svg"
+            alt="网球运动"
+            class="w-full h-48 object-contain"
+          />
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        new Swiper(".swiper-container", {
+          loop: true,
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+          },
+        });
+      });
+    </script>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 pt-8 pb-24">
+      <!-- 运动类型选择 -->
+      <section class="mb-6">
+        <div class="grid grid-cols-4 gap-4">
+          <div class="flex flex-col items-center">
+            <div class="bg-blue-500 text-white p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">全部</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">篮球</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">足球</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">羽毛球</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">网球</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">乒乓球</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">健身</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <span class="text-xs mt-1">更多</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 热门活动 -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            class="text-xl font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1 rounded-lg"
+          >
+            热门活动
+          </h2>
+          <a
+            href="#"
+            class="text-sm text-blue-600 dark:text-blue-400 flex items-center"
+          >
+            查看全部
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <!-- 活动卡片 -->
+        <div class="space-y-4">
+          <!-- 活动卡片1 -->
+          <div
+            class="activity-card card-shadow bg-white dark:bg-gray-800 overflow-hidden"
+          >
+            <div class="relative">
+              <img
+                src="https://images.unsplash.com/photo-1546519638-68e109acd27d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                class="w-full h-40 object-cover"
+                alt="篮球活动"
+              />
+              <span class="badge bg-blue-500">进行中</span>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg">周末篮球友谊赛</h3>
+                <span class="text-sm text-gray-500 dark:text-gray-400"
+                  >1.2km</span
+                >
+              </div>
+              <div
+                class="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>城市体育中心</span>
+              </div>
+              <div
+                class="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>今天 15:00-17:00</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <div class="flex -space-x-2">
+                  <img
+                    src="https://randomuser.me/api/portraits/men/32.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <img
+                    src="https://randomuser.me/api/portraits/women/44.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <img
+                    src="https://randomuser.me/api/portraits/men/46.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <div
+                    class="avatar-sm bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs"
+                  >
+                    +5
+                  </div>
+                </div>
+                <button
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-full text-sm"
+                >
+                  加入
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 活动卡片2 -->
+          <div
+            class="activity-card card-shadow bg-white dark:bg-gray-800 overflow-hidden"
+          >
+            <div class="relative">
+              <img
+                src="https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                class="w-full h-40 object-cover"
+                alt="足球活动"
+              />
+              <span class="badge bg-green-500">招募中</span>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg">5v5足球小比赛中场</h3>
+                <span class="text-sm text-gray-500 dark:text-gray-400"
+                  >2.5km</span
+                >
+              </div>
+              <div
+                class="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>阳光足球场</span>
+              </div>
+              <div
+                class="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>明天 19:00-21:00</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <div class="flex -space-x-2">
+                  <img
+                    src="https://randomuser.me/api/portraits/men/22.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <img
+                    src="https://randomuser.me/api/portraits/men/24.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <img
+                    src="https://randomuser.me/api/portraits/men/26.jpg"
+                    alt="参与者"
+                    class="avatar-sm border-2 border-white dark:border-gray-800"
+                  />
+                  <div
+                    class="avatar-sm bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs"
+                  >
+                    +3
+                  </div>
+                </div>
+                <button
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-full text-sm"
+                >
+                  加入
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 推荐场地 -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            class="text-xl font-bold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1 rounded-lg"
+          >
+            推荐场地
+          </h2>
+          <a
+            href="#"
+            class="text-sm text-green-600 dark:text-green-400 flex items-center"
+          >
+            查看全部
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <!-- 场地列表 -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 场地卡片1 -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1505666287802-931dc83a0fe4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+              class="w-full h-32 object-cover"
+              alt="篮球场"
+            />
+            <div class="p-3">
+              <h3 class="font-bold text-gray-900 dark:text-white mb-1">
+                城市体育中心
+              </h3>
+              <div class="flex items-center text-yellow-500 mb-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                  />
+                </svg>
+                <span class="text-xs ml-1 text-gray-600 dark:text-gray-300"
+                  >4.5 (98)</span
+                >
+              </div>
+              <div class="flex justify-between items-center">
+                <span
+                  class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full"
+                  >足球</span
+                >
+                <span
+                  class="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-0.5 rounded-full"
+                  >5v5</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 热门团队 -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            class="text-xl font-bold text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-4 py-1 rounded-lg"
+          >
+            热门团队
+          </h2>
+          <a
+            href="#"
+            class="text-sm text-purple-600 dark:text-purple-400 flex items-center"
+          >
+            查看全部
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <!-- 团队列表 -->
+        <div class="grid grid-cols-1 gap-4">
+          <!-- 团队卡片1 -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow p-4"
+          >
+            <div class="flex items-center">
+              <img
+                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                class="w-14 h-14 rounded-xl object-cover mr-4"
+                alt="篮球队"
+              />
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <h3 class="font-bold text-gray-900 dark:text-white">
+                    城市篮球俱乐部
+                  </h3>
+                  <span
+                    class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full"
+                    >篮球</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  每周末组织篮球活动，欢迎各位球友加入！
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <div class="flex -space-x-2">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/32.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/women/44.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/men/46.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <div
+                      class="avatar-sm bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs"
+                    >
+                      +12
+                    </div>
+                  </div>
+                  <button
+                    class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-full text-sm"
+                  >
+                    加入
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 团队卡片2 -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow p-4"
+          >
+            <div class="flex items-center">
+              <img
+                src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                class="w-14 h-14 rounded-xl object-cover mr-4"
+                alt="足球队"
+              />
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <h3 class="font-bold text-gray-900 dark:text-white">
+                    阳光足球俱乐部
+                  </h3>
+                  <span
+                    class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full"
+                    >足球</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  专业的足球训练和比赛组织，欢迎各年龄段球员！
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <div class="flex -space-x-2">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/52.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/men/54.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/women/56.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <div
+                      class="avatar-sm bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs"
+                    >
+                      +8
+                    </div>
+                  </div>
+                  <button
+                    class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-full text-sm"
+                  >
+                    加入
+                  </button>
+                </div>
+                <div class="flex justify-between items-start">
+                  <h3 class="font-bold text-gray-900 dark:text-white">
+                    阳光足球队
+                  </h3>
+                  <span
+                    class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full"
+                    >足球</span
+                  >
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  专业足球训练，定期组织比赛，提高球技水平。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <div class="flex -space-x-2">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/22.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/men/24.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <img
+                      src="https://randomuser.me/api/portraits/men/26.jpg"
+                      alt="成员"
+                      class="avatar-sm border-2 border-white dark:border-gray-800"
+                    />
+                    <div
+                      class="avatar-sm bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs"
+                    >
+                      +8
+                    </div>
+                  </div>
+                  <button
+                    class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-full text-sm"
+                  >
+                    加入
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 底部导航栏 -->
+    <nav
+      class="bg-white dark:bg-gray-800 shadow fixed bottom-0 left-0 right-0 z-10"
+    >
+      <div class="flex justify-around items-center relative py-2">
+        <a href="#" class="bottom-nav-item text-blue-500 dark:text-blue-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+          <span class="text-xs mt-1">大厅</span>
+        </a>
+        <a href="#" class="bottom-nav-item text-gray-500 dark:text-gray-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <span class="text-xs mt-1">发现</span>
+        </a>
+        <a
+          href="#"
+          class="bottom-nav-item text-gray-500 dark:text-gray-400 relative -top-4"
+        >
+          <div class="bg-blue-500 rounded-full p-3 shadow-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </div>
+        </a>
+        <a href="#" class="bottom-nav-item text-gray-500 dark:text-gray-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+            />
+          </svg>
+          <span class="text-xs mt-1">消息</span>
+        </a>
+        <a
+          href="mine.html"
+          class="bottom-nav-item text-gray-500 dark:text-gray-400"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+          <span class="text-xs mt-1">我的</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- JavaScript -->
+    <script>
+      // 深色模式切换
+      // 获取主题切换按钮元素
+      const themeToggleBtn = document.getElementById("themeToggle");
+      // 获取 document.documentElement 的引用
+      const rootElement = document.documentElement;
+
+      // 检查本地存储中的主题偏好
+      if (
+        localStorage.theme === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        html.classList.add("dark");
+      } else {
+        html.classList.remove("dark");
+      }
+
+      // 切换主题
+      themeToggle.addEventListener("click", () => {
+        if (html.classList.contains("dark")) {
+          html.classList.remove("dark");
+          localStorage.theme = "light";
+        } else {
+          html.classList.add("dark");
+          localStorage.theme = "dark";
+        }
+      });
+    </script>
+  </body>
+</html>

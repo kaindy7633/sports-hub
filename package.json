@@ -1,0 +1,14 @@
+{
+  "name": "sports-hub",
+  "version": "1.0.0",
+  "description": "SportsHub - A comprehensive sports platform",
+  "scripts": {
+    "start:app": "cd sports-hub-app && npm run start",
+    "start:server": "cd sports-hub-project && npm run start:dev",
+    "start": "concurrently \"npm run start:app\" \"npm run start:server\"",
+    "install:all": "npm install && cd sports-hub-app && npm install && cd ../sports-hub-project && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

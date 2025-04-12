@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 @Controller()
+@UseInterceptors(TransformInterceptor)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('ping')
+  getPing(): string {
+    return 'pong';
   }
 }

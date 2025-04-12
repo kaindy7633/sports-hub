@@ -9,37 +9,7 @@ enum Environment {
 
 class EnvironmentVariables {
   @IsEnum(Environment)
-  NODE_ENV: Environment;
-
-  @IsString()
-  DB_HOST: string;
-
-  @IsNumber()
-  DB_PORT: number;
-
-  @IsString()
-  DB_USERNAME: string;
-
-  @IsString()
-  DB_PASSWORD: string;
-
-  @IsString()
-  DB_DATABASE: string;
-
-  @IsString()
-  JWT_SECRET: string;
-
-  @IsNumber()
-  JWT_EXPIRATION_TIME: number;
-
-  @IsNumber()
-  PORT: number;
-
-  @IsString()
-  API_PREFIX: string;
-
-  @IsString()
-  API_VERSION: string;
+  NODE_ENV: Environment = Environment.Development;
 }
 
 export function validate(config: Record<string, unknown>) {

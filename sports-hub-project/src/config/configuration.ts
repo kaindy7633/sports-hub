@@ -17,6 +17,7 @@ export const appConfig = registerAs('app', () => ({
   port: process.env.PORT || 9000,
   apiPrefix: process.env.API_PREFIX || '/api',
   apiVersion: process.env.API_VERSION || 'v1',
+  nodeEnv: process.env.NODE_ENV || 'development',
 }));
 
 export const redisConfig = registerAs('redis', () => ({

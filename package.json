@@ -13,8 +13,12 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/typeorm": "^11.0.0",
+    "cache-manager": "^6.4.2",
+    "cache-manager-ioredis-yet": "^2.1.2",
+    "ioredis": "^5.6.1",
     "joi": "^17.13.3",
     "pg": "^8.14.1",
     "typeorm": "^0.3.22",

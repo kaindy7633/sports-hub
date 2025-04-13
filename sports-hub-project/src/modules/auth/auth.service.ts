@@ -5,19 +5,17 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { TokenService } from '../../core/token/token.service';
+import { CacheService } from '../../core/cache/cache.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
-  // 模拟验证码存储，实际应用中应该使用Redis等缓存服务
-  private verificationCodes: Map<string, { code: string; expiry: Date }> =
-    new Map();
-
   constructor(
     private usersService: UsersService,
     private tokenService: TokenService,
+    private cacheService: CacheService,
   ) {}
 
   /**
@@ -26,19 +24,15 @@ export class AuthService {
    * @returns 发送结果
    */
   async sendSmsCode(phone: string): Promise<{ message: string }> {
-    // 生成6位随机验证码
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
+    // 生成6位随机验证码（确保0开头的情况也能正确处理）
+    let verificationCode = Math.floor(Math.random() * 1000000).toString();
+    // 补齐前导零
+    verificationCode = verificationCode.padStart(6, '0');
 
-    // 设置验证码有效期为5分钟
-    const expiry = new Date();
-    expiry.setMinutes(expiry.getMinutes() + 5);
+    // 存储验证码到Redis，有效期60秒
+    await this.cacheService.setVerificationCode(phone, verificationCode, 60);
 
-    // 存储验证码
-    this.verificationCodes.set(phone, { code: verificationCode, expiry });
-
-    // 实际应用中，这里应该调用短信服务发送验证码
+    // TODO 实际应用中，这里应该调用短信服务发送验证码
     console.log(`向手机号 ${phone} 发送验证码: ${verificationCode}`);
 
     return { message: '验证码已发送' };
@@ -50,19 +44,14 @@ export class AuthService {
    * @param code 验证码
    * @returns 验证结果
    */
-  private verifyCode(phone: string, code: string): boolean {
-    const storedCode = this.verificationCodes.get(phone);
+  private async verifyCode(phone: string, code: string): Promise<boolean> {
+    const storedCode = await this.cacheService.getVerificationCode(phone);
 
     if (!storedCode) {
       return false;
     }
 
-    if (new Date() > storedCode.expiry) {
-      this.verificationCodes.delete(phone);
-      return false;
-    }
-
-    return storedCode.code === code;
+    return storedCode === code;
   }
 
   /**
@@ -110,7 +99,7 @@ export class AuthService {
     });
 
     // 清除验证码
-    this.verificationCodes.delete(phone);
+    await this.cacheService.delVerificationCode(phone);
 
     return { message: '注册成功' };
   }
@@ -124,14 +113,40 @@ export class AuthService {
     const { phone, verificationCode } = loginDto;
 
     // 验证验证码
-    if (!this.verifyCode(phone, verificationCode)) {
+    if (!(await this.verifyCode(phone, verificationCode))) {
       throw new BadRequestException('验证码无效或已过期');
     }
 
     // 查找用户
-    const user = await this.usersService.findByPhone(phone);
+    let user = await this.usersService.findByPhone(phone);
+
+    // 如果用户不存在，则自动注册
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      // 生成用户名（使用手机号作为默认用户名）
+      const username = `user_${phone}`;
+
+      // 生成随机密码（实际应用中可能需要更复杂的逻辑）
+      const password = Math.random().toString(36).slice(-8);
+      const salt = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = crypto
+        .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
+        .toString('hex');
+
+      // 创建用户
+      user = await this.usersService.create({
+        username,
+        password,
+        phone,
+        nick_name: username,
+      });
+
+      // 创建用户认证信息
+      await this.usersService.createUserAuth({
+        user_id: user.id,
+        identity_type: 'phone',
+        identifier: phone,
+        credential: hashedPassword,
+      });
     }
 
     // 生成token
@@ -142,7 +157,7 @@ export class AuthService {
     });
 
     // 清除验证码
-    this.verificationCodes.delete(phone);
+    await this.cacheService.delVerificationCode(phone);
 
     // 返回用户信息（排除敏感字段）
     const { password, salt, ...userInfo } = user;

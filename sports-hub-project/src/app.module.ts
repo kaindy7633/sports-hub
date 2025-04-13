@@ -21,6 +21,7 @@ import {
   uploadConfig,
   securityConfig,
 } from './config/configuration';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import {
     PingModule,
     UsersModule,
     AuthModule,
+    RolesModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -21,8 +21,11 @@ export const appConfig = registerAs('app', () => ({
 }));
 
 export const redisConfig = registerAs('redis', () => ({
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT || 6379,
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  password: process.env.REDIS_PASSWORD || '',
+  db: parseInt(process.env.REDIS_DB || '0', 10),
+  keyPrefix: process.env.REDIS_PREFIX || 'sports_hub_',
 }));
 
 export const uploadConfig = registerAs('upload', () => ({

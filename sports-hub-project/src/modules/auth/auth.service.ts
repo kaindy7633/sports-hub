@@ -45,13 +45,23 @@ export class AuthService {
    * @returns 验证结果
    */
   private async verifyCode(phone: string, code: string): Promise<boolean> {
-    const storedCode = await this.cacheService.getVerificationCode(phone);
+    try {
+      const storedCode = await this.cacheService.getVerificationCode(phone);
 
-    if (!storedCode) {
+      if (!storedCode) {
+        console.log(`验证码不存在或已过期: ${phone}`);
+        return false;
+      }
+
+      const isValid = storedCode === code;
+      console.log(
+        `验证码验证${isValid ? '成功' : '失败'}: ${phone}, 输入=${code}, 存储=${storedCode}`,
+      );
+      return isValid;
+    } catch (error) {
+      console.error(`验证码验证过程出错: ${error.message}`);
       return false;
     }
-
-    return storedCode === code;
   }
 
   /**

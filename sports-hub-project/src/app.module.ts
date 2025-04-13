@@ -9,6 +9,7 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { TeamsModule } from './modules/teams/teams.module';
 import { PingModule } from './modules/ping/ping.module';
+import { UsersModule } from './modules/users/users.module';
 import { validate } from './config/env.validation';
 import { LoggingMiddleware } from './core/middleware/logging.middleware';
 import {
@@ -39,6 +40,7 @@ import {
     SharedModule,
     TeamsModule,
     PingModule,
+    UsersModule,
   ],
 })
 export class AppModule implements NestModule {

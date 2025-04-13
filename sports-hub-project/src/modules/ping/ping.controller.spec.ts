@@ -1,22 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './ping.controller';
-import { AppService } from './ping.service';
+import { PingController } from './ping.controller';
+import { PingService } from './ping.service';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let pingController: PingController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [PingController],
+      providers: [PingService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    pingController = app.get<PingController>(PingController);
   });
 
   describe('ping', () => {
     it('should return "pong"', () => {
-      expect(appController.getPing()).toBe('pong');
+      expect(pingController.getPing()).toBe('pong');
     });
   });
 });

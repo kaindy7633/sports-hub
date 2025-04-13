@@ -13,6 +13,7 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "@nestjs/mapped-types": "*",
     "@nestjs/typeorm": "^11.0.0",
     "joi": "^17.13.3",
     "pg": "^8.14.1",

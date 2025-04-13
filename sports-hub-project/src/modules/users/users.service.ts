@@ -164,6 +164,21 @@ export class UsersService {
   }
 
   /**
+   * 创建用户认证信息
+   * @param authData
+   * @returns
+   */
+  async createUserAuth(authData: {
+    user_id: bigint;
+    identity_type: string;
+    identifier: string;
+    credential: string;
+  }) {
+    const userAuth = this.userAuthRepository.create(authData);
+    return await this.userAuthRepository.save(userAuth);
+  }
+
+  /**
    * 根据用户名查找用户
    * @param username
    * @returns

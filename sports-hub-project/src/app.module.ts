@@ -10,6 +10,7 @@ import { SharedModule } from './shared/shared.module';
 import { TeamsModule } from './modules/teams/teams.module';
 import { PingModule } from './modules/ping/ping.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { validate } from './config/env.validation';
 import { LoggingMiddleware } from './core/middleware/logging.middleware';
 import {
@@ -41,6 +42,7 @@ import {
     TeamsModule,
     PingModule,
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule implements NestModule {

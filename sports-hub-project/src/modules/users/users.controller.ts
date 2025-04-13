@@ -33,10 +33,33 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: '获取所有用户' })
+  @ApiOperation({ summary: '分页查询用户列表' })
+  @ApiResponse({ status: 200, description: '返回分页用户列表' })
+  async findAll(
+    @Query('pageNum') pageNum: number,
+    @Query('pageSize') pageSize: number,
+    @Query('username') username?: string,
+    @Query('phone') phone?: string,
+    @Query('email') email?: string,
+  ) {
+    return await this.usersService.findAll({
+      pageNum: +pageNum,
+      pageSize: +pageSize,
+      username,
+      phone,
+      email,
+    });
+  }
+
+  @Get('list')
+  @ApiOperation({ summary: '获取所有用户列表' })
   @ApiResponse({ status: 200, description: '返回所有用户列表' })
-  async findAll() {
-    return await this.usersService.findAll();
+  async findAllList(
+    @Query('username') username?: string,
+    @Query('phone') phone?: string,
+    @Query('email') email?: string,
+  ) {
+    return await this.usersService.findAllList({ username, phone, email });
   }
 
   @Get(':id')
@@ -77,20 +100,5 @@ export class UsersController {
     },
   ) {
     return await this.usersService.addUserAuth(authData);
-  }
-
-  @Get('by-username/:username')
-  async findByUsername(@Param('username') username: string) {
-    return await this.usersService.findByUsername(username);
-  }
-
-  @Get('by-phone/:phone')
-  async findByPhone(@Param('phone') phone: string) {
-    return await this.usersService.findByPhone(phone);
-  }
-
-  @Get('by-email/:email')
-  async findByEmail(@Param('email') email: string) {
-    return await this.usersService.findByEmail(email);
   }
 }

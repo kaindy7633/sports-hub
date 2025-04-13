@@ -98,7 +98,7 @@ export class User {
     example: 1,
     required: false,
   })
-  @Column({ type: 'tinyint', nullable: true })
+  @Column({ type: 'smallint', nullable: true })
   gender: number;
 
   @ApiProperty({ description: '生日', example: '1990-01-01', required: false })
@@ -106,7 +106,7 @@ export class User {
   birthday: Date;
 
   @ApiProperty({ description: '用户状态(0:禁用,1:启用)', example: 1 })
-  @Column({ type: 'tinyint', default: 1 })
+  @Column({ type: 'smallint', default: 1 })
   status: number;
 
   @ApiProperty({ description: '创建时间' })

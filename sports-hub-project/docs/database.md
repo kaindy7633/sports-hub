@@ -11,7 +11,7 @@
 | param_value | varchar | 255 | 否 | - | - | 参数键值 |
 | param_type | varchar | 20 | 否 | - | - | 参数类型：string/number/boolean/json |
 | description | varchar | 255 | 是 | null | - | 参数描述 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -23,7 +23,7 @@
 | id | bigint | - | 否 | - | 是 | 字典类型ID |
 | dict_name | varchar | 50 | 否 | - | - | 字典名称 |
 | dict_type | varchar | 50 | 否 | - | - | 字典类型 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | remark | varchar | 255 | 是 | null | - | 备注 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
@@ -38,7 +38,7 @@
 | dict_label | varchar | 100 | 否 | - | - | 字典标签 |
 | dict_value | varchar | 100 | 否 | - | - | 字典键值 |
 | dict_sort | int | - | 否 | 0 | - | 字典排序 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | remark | varchar | 255 | 是 | null | - | 备注 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
@@ -63,9 +63,9 @@
 | phone | varchar | 20 | 是 | null | - | 手机号码 |
 | emergency_contact | varchar | 20 | 是 | null | - | 紧急联系人电话 |
 | address | varchar | 255 | 是 | null | - | 住址 |
-| gender | tinyint | - | 是 | null | - | 性别：0-未知，1-男，2-女 |
+| gender | smallint | - | 是 | null | - | 性别：0-未知，1-男，2-女 |
 | birthday | date | - | 是 | null | - | 出生日期 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -91,7 +91,7 @@
 | name | varchar | 50 | 否 | - | - | 角色名称 |
 | code | varchar | 50 | 否 | - | - | 角色编码 |
 | description | varchar | 255 | 是 | null | - | 角色描述 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -115,7 +115,7 @@
 | code | varchar | 50 | 否 | - | - | 活动类型编码 |
 | icon | varchar | 255 | 是 | null | - | 活动类型图标 |
 | description | varchar | 255 | 是 | null | - | 活动类型描述 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -137,7 +137,7 @@
 | max_participants | int | - | 否 | 0 | - | 最大参与人数，0表示不限制 |
 | current_participants | int | - | 否 | 0 | - | 当前参与人数 |
 | fee | decimal | 10,2 | 否 | 0.00 | - | 参与费用 |
-| status | tinyint | - | 否 | 0 | - | 状态：0-草稿，1-已发布，2-未开始，3-进行中，4-已结束 |
+| status | smallint | - | 否 | 0 | - | 状态：0-草稿，1-已发布，2-未开始，3-进行中，4-已结束 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -154,7 +154,7 @@
 | business_hours | varchar | 100 | 是 | null | - | 营业时间 |
 | facilities | text | - | 是 | null | - | 场地设施描述 |
 | images | text | - | 是 | null | - | 场地图片，JSON数组 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -171,7 +171,7 @@
 | leader_id | bigint | - | 否 | - | - | 队长ID |
 | max_members | int | - | 否 | 0 | - | 最大成员数，0表示不限制 |
 | current_members | int | - | 否 | 0 | - | 当前成员数 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-解散，1-正常 |
+| status | smallint | - | 否 | 1 | - | 状态：0-解散，1-正常 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -184,10 +184,10 @@
 | message_id | bigint | - | 否 | - | - | 业务消息ID |
 | sender_id | bigint | - | 否 | - | - | 发送者ID |
 | receiver_id | bigint | - | 否 | - | - | 接收者ID |
-| type | tinyint | - | 否 | 1 | - | 消息类型：1-系统消息，2-活动消息，3-团队消息 |
+| type | smallint | - | 否 | 1 | - | 消息类型：1-系统消息，2-活动消息，3-团队消息 |
 | title | varchar | 100 | 否 | - | - | 消息标题 |
 | content | text | - | 否 | - | - | 消息内容 |
-| read_status | tinyint | - | 否 | 0 | - | 读取状态：0-未读，1-已读 |
+| read_status | smallint | - | 否 | 0 | - | 读取状态：0-未读，1-已读 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |
@@ -203,7 +203,7 @@
 | parent_id | bigint | - | 是 | null | - | 父评论ID，用于回复功能 |
 | content | text | - | 否 | - | - | 评论内容 |
 | likes | int | - | 否 | 0 | - | 点赞数 |
-| status | tinyint | - | 否 | 1 | - | 状态：0-隐藏，1-显示 |
+| status | smallint | - | 否 | 1 | - | 状态：0-隐藏，1-显示 |
 | created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
 | updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
 | deleted_at | timestamp | - | 是 | null | - | 删除时间 |

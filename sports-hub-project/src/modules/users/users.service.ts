@@ -51,13 +51,49 @@ export class UsersService {
   }
 
   /**
-   * 查找所有用户
-   * @returns
+   * 分页查询用户列表
+   * @param params 查询参数，包含分页信息和筛选条件
+   * @returns 分页用户列表
    */
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find({
+  async findAll(params?: {
+    pageNum: number;
+    pageSize: number;
+    username?: string;
+    phone?: string;
+    email?: string;
+  }) {
+    if (!params) {
+      return await this.userRepository.find({
+        relations: ['auths', 'roles'],
+      });
+    }
+
+    const { pageNum, pageSize, username, phone, email } = params;
+    const skip = (pageNum - 1) * pageSize;
+
+    // 构建查询条件
+    const whereConditions: any = {};
+    if (username) whereConditions.username = username;
+    if (phone) whereConditions.phone = phone;
+    if (email) whereConditions.email = email;
+
+    // 查询总数
+    const total = await this.userRepository.count({ where: whereConditions });
+
+    // 查询数据
+    const users = await this.userRepository.find({
+      where: whereConditions,
       relations: ['auths', 'roles'],
+      skip,
+      take: pageSize,
     });
+
+    return {
+      list: users,
+      total,
+      pageNum,
+      pageSize,
+    };
   }
 
   /**
@@ -159,6 +195,30 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { email },
+      relations: ['auths', 'roles'],
+    });
+  }
+
+  /**
+   * 获取所有用户列表（不分页）
+   * @param params 筛选条件
+   * @returns 用户列表
+   */
+  async findAllList(params?: {
+    username?: string;
+    phone?: string;
+    email?: string;
+  }): Promise<User[]> {
+    // 构建查询条件
+    const whereConditions: any = {};
+    if (params) {
+      if (params.username) whereConditions.username = params.username;
+      if (params.phone) whereConditions.phone = params.phone;
+      if (params.email) whereConditions.email = params.email;
+    }
+
+    return await this.userRepository.find({
+      where: whereConditions,
       relations: ['auths', 'roles'],
     });
   }

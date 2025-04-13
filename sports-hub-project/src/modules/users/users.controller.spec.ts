@@ -83,16 +83,68 @@ describe('UsersController', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of users', async () => {
+    it('should return paginated users with filters', async () => {
+      const mockPaginatedResult = {
+        list: [
+          { id: BigInt(1), username: 'user1' },
+          { id: BigInt(2), username: 'user2' },
+        ],
+        total: 2,
+        pageNum: 1,
+        pageSize: 10,
+      };
+
+      jest
+        .spyOn(service, 'findAll')
+        .mockResolvedValue(
+          mockPaginatedResult as {
+            list: User[];
+            total: number;
+            pageNum: number;
+            pageSize: number;
+          },
+        );
+
+      const pageNum = 1;
+      const pageSize = 10;
+      const username = 'test';
+      const phone = '13800138000';
+      const email = 'test@example.com';
+
+      expect(
+        await controller.findAll(pageNum, pageSize, username, phone, email),
+      ).toBe(mockPaginatedResult);
+      expect(service.findAll).toHaveBeenCalledWith({
+        pageNum: pageNum,
+        pageSize: pageSize,
+        username,
+        phone,
+        email,
+      });
+    });
+  });
+
+  describe('findAllList', () => {
+    it('should return all users with filters', async () => {
       const mockUsers = [
         { id: BigInt(1), username: 'user1' },
         { id: BigInt(2), username: 'user2' },
       ];
 
-      jest.spyOn(service, 'findAll').mockResolvedValue(mockUsers as User[]);
+      jest.spyOn(service, 'findAllList').mockResolvedValue(mockUsers as User[]);
 
-      expect(await controller.findAll()).toBe(mockUsers);
-      expect(service.findAll).toHaveBeenCalled();
+      const username = 'test';
+      const phone = '13800138000';
+      const email = 'test@example.com';
+
+      expect(await controller.findAllList(username, phone, email)).toBe(
+        mockUsers,
+      );
+      expect(service.findAllList).toHaveBeenCalledWith({
+        username,
+        phone,
+        email,
+      });
     });
   });
 

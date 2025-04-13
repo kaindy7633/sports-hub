@@ -33,7 +33,7 @@ export class Role {
   description: string;
 
   @ApiProperty({ description: '角色状态(0:禁用,1:启用)', example: 1 })
-  @Column({ type: 'tinyint', default: 1 })
+  @Column({ type: 'smallint', default: 1 })
   status: number;
 
   @ApiProperty({ description: '创建时间' })

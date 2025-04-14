@@ -59,16 +59,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // 构造统一响应格式
     const responseBody = {
-      statusCode: status,
-      message: isProduction && status >= 500 ? productionMessage : message,
-      path: request.url,
-      timestamp: new Date().toISOString(),
-      ...(errorCode && { code: errorCode }),
-      ...(!isProduction &&
-        exception instanceof Error && {
-          details: exception.stack,
-        }),
+      code: status,
+      data: null,
+      msg: isProduction && status >= 500 ? productionMessage : message,
     };
+
+    // 在开发环境下，可以添加额外的调试信息
+    if (!isProduction && exception instanceof Error) {
+      // 将调试信息添加到响应的msg中，而不是作为单独的字段
+      responseBody.msg += '\n调试信息: ' + exception.stack;
+    }
 
     response.status(status).json(responseBody);
   }

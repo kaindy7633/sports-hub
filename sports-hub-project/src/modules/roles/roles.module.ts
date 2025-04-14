@@ -5,9 +5,10 @@ import { RolesController } from './roles.controller';
 import { Role } from './entities/role.entity';
 import { UserRole } from '../users/entities/user-role.entity';
 import { User } from '../users/entities/user.entity';
+import { TokenModule } from '../../core/token/token.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Role, UserRole, User])],
+  imports: [TypeOrmModule.forFeature([Role, UserRole, User]), TokenModule],
   controllers: [RolesController],
   providers: [RolesService],
   exports: [RolesService],

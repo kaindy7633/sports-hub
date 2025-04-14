@@ -34,14 +34,11 @@ export class ValidationExceptionFilter implements ExceptionFilter {
       body: request.body,
     });
 
-    // 构建标准响应
+    // 构建统一响应格式
     response.status(status).json({
-      statusCode: status,
-      message: '请求参数验证失败',
-      details: errorMessages,
-      path: request.url,
-      timestamp: new Date().toISOString(),
-      code: 10003, // 验证错误的业务码
+      code: status,
+      data: null,
+      msg: '请求参数验证失败: ' + errorMessages.join('; '),
     });
   }
 

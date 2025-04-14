@@ -11,17 +11,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest();
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : (exceptionResponse as any).message || exception.message;
 
+    // 统一返回格式
     const errorResponse = {
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: ctx.getRequest().url,
-      message:
-        typeof exceptionResponse === 'string'
-          ? exceptionResponse
-          : (exceptionResponse as any).message || exception.message,
+      code: status,
+      data: null,
+      msg: message,
     };
 
     response.status(status).json(errorResponse);

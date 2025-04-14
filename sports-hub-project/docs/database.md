@@ -2,6 +2,25 @@
 
 ## 系统配置模块
 
+### 系统管理员表 (managers)
+
+| 字段名 | 类型 | 长度 | 允许空 | 默认值 | 主键 | 说明 |
+|--------|------|------|--------|--------|------|------|
+| id | bigint | - | 否 | - | 是 | 管理员ID |
+| username | varchar | 50 | 否 | - | - | 用户名 |
+| password | varchar | 255 | 否 | - | - | 密码（加密存储） |
+| salt | varchar | 32 | 否 | - | - | 密码加密盐值 |
+| parent_id | bigint | - | 否 | 0 | - | 父管理员ID，0表示超级管理员 |
+| nick_name | varchar | 50 | 是 | null | - | 昵称 |
+| real_name | varchar | 50 | 是 | null | - | 真实姓名 |
+| avatar | varchar | 255 | 是 | null | - | 头像URL |
+| email | varchar | 100 | 是 | null | - | 电子邮箱 |
+| phone | varchar | 20 | 是 | null | - | 手机号码 |
+| status | smallint | - | 否 | 1 | - | 状态：0-禁用，1-正常 |
+| created_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 创建时间 |
+| updated_at | timestamp | - | 否 | CURRENT_TIMESTAMP | - | 更新时间 |
+| deleted_at | timestamp | - | 是 | null | - | 删除时间 |
+
 ### 系统参数表 (sys_configs)
 
 | 字段名 | 类型 | 长度 | 允许空 | 默认值 | 主键 | 说明 |

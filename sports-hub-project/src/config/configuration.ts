@@ -25,7 +25,7 @@ export const redisConfig = registerAs('redis', () => ({
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   password: process.env.REDIS_PASSWORD || '',
   db: parseInt(process.env.REDIS_DB || '0', 10),
-  keyPrefix: process.env.REDIS_PREFIX || 'sports_hub_',
+  keyPrefix: process.env.REDIS_PREFIX || 'sports-hub_',
 }));
 
 export const uploadConfig = registerAs('upload', () => ({

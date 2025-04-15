@@ -27,11 +27,11 @@ export class ManagersService {
   async create(createManagerDto: CreateManagerDto): Promise<Manager> {
     // 检查账号是否已存在
     const existingManager = await this.managerRepository.findOne({
-      where: { account: createManagerDto.account },
+      where: { username: createManagerDto.username },
     });
 
     if (existingManager) {
-      throw new ConflictException(`账号 ${createManagerDto.account} 已存在`);
+      throw new ConflictException(`账号 ${createManagerDto.username} 已存在`);
     }
 
     // 生成盐值
@@ -81,16 +81,16 @@ export class ManagersService {
 
   /**
    * 根据账号查询管理员
-   * @param account 管理员账号
+   * @param username 管理员账号
    * @returns 管理员信息
    */
-  async findByAccount(account: string): Promise<Manager> {
+  async findByUsername(username: string): Promise<Manager> {
     const manager = await this.managerRepository.findOne({
-      where: { account },
+      where: { username: username },
     });
 
     if (!manager) {
-      throw new NotFoundException(`账号为${account}的管理员不存在`);
+      throw new NotFoundException(`账号为${username}的管理员不存在`);
     }
 
     return manager;

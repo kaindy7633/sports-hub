@@ -28,6 +28,7 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.CONFLICT, description: '账号已存在' })
   async create(@Body() createManagerDto: CreateManagerDto): Promise<Manager> {
+    // 确保 createManagerDto 字段与 Manager 实体一致
     return this.managersService.create(createManagerDto);
   }
 
@@ -51,6 +52,7 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async findOne(@Param('id') id: string): Promise<Manager> {
+    // 确保 id 类型与 Manager 实体主键一致
     return this.managersService.findOne(BigInt(id));
   }
 
@@ -66,6 +68,7 @@ export class ManagersController {
     @Param('id') id: string,
     @Body() updateManagerDto: UpdateManagerDto,
   ): Promise<Manager> {
+    // 确保 updateManagerDto 字段与 Manager 实体一致
     return this.managersService.update(BigInt(id), updateManagerDto);
   }
 
@@ -74,6 +77,7 @@ export class ManagersController {
   @ApiResponse({ status: HttpStatus.OK, description: '删除成功' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async remove(@Param('id') id: string): Promise<void> {
+    // 确保 id 类型与 Manager 实体主键一致
     return this.managersService.remove(BigInt(id));
   }
 }

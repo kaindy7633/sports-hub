@@ -14,21 +14,45 @@ export class Manager {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: bigint;
 
-  @ApiProperty({ description: '管理员名称', example: 'admin' })
-  @Column({ length: 50 })
-  name: string;
+  @ApiProperty({ description: '管理员ID', example: '0' })
+  @Column({ type: 'bigint', default: 0 })
+  manager_id: number;
 
   @ApiProperty({ description: '管理员账号', example: 'admin' })
-  @Column({ length: 50, unique: true })
-  account: string;
+  @Column({ type: 'varchar', length: 50, unique: true })
+  username: string;
 
   @ApiProperty({ description: '管理员密码', example: 'password123' })
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   password: string;
 
   @ApiProperty({ description: '密码加密盐值', example: 'abc123' })
-  @Column({ length: 32 })
+  @Column({ type: 'varchar', length: 32 })
   salt: string;
+
+  @ApiProperty({ description: '父级管理员ID', example: '0' })
+  @Column({ type: 'bigint', default: 0 })
+  parent_id: number;
+
+  @ApiProperty({ description: '管理员昵称', example: 'admin', required: false })
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  nick_name: string;
+
+  @ApiProperty({
+    description: '管理员真实姓名',
+    example: '张三',
+    required: false,
+  })
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  real_name: string;
+
+  @ApiProperty({
+    description: '头像',
+    example: 'https://example.com/avatar.png',
+    required: false,
+  })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  avatar: string;
 
   @ApiProperty({
     description: '手机号',

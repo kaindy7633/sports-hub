@@ -22,6 +22,7 @@ import {
   securityConfig,
 } from './config/configuration';
 import { RolesModule } from './modules/roles/roles.module';
+import { ManagersModule } from './modules/managers/managers.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { RolesModule } from './modules/roles/roles.module';
     UsersModule,
     AuthModule,
     RolesModule,
+    ManagersModule,
   ],
 })
 export class AppModule implements NestModule {

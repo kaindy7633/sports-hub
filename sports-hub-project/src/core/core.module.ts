@@ -7,6 +7,7 @@ import { MiddlewareModule } from './middleware/middleware.module';
 import { TokenModule } from './token/token.module';
 import { CacheModule } from './cache/cache.module';
 import { RedisModule } from './redis/redis.module';
+import { SnowflakeModule } from './snowflake/snowflake.module';
 
 @Module({
   imports: [
@@ -18,7 +19,14 @@ import { RedisModule } from './redis/redis.module';
     TokenModule,
     RedisModule.forRoot(),
     CacheModule,
+    SnowflakeModule,
   ],
-  exports: [MiddlewareModule, TokenModule, CacheModule, RedisModule],
+  exports: [
+    MiddlewareModule,
+    TokenModule,
+    CacheModule,
+    RedisModule,
+    SnowflakeModule,
+  ],
 })
 export class CoreModule {}

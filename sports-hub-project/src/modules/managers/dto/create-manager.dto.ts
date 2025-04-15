@@ -6,7 +6,6 @@ import {
   IsString,
   Length,
   Matches,
-  IsNumber,
 } from 'class-validator';
 
 export class CreateManagerDto {
@@ -23,24 +22,14 @@ export class CreateManagerDto {
   password: string;
 
   @ApiProperty({
-    description: '密码加密盐值',
-    example: 'abc123',
-    required: false,
+    description: '手机号',
+    example: '13800138000',
+    required: true,
   })
-  @IsOptional()
-  @IsString({ message: '盐值必须是字符串' })
-  @Length(0, 32, { message: '盐值最大长度为32个字符' })
-  salt?: string;
-
-  @ApiProperty({ description: '管理员ID', example: 0, required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '管理员ID必须为数字' })
-  manager_id?: number;
-
-  @ApiProperty({ description: '父级管理员ID', example: 0, required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '父级管理员ID必须为数字' })
-  parent_id?: number;
+  @IsNotEmpty({ message: '手机号不能为空' })
+  @IsString({ message: '手机号必须是字符串' })
+  @Matches(/^1[3-9]\d{9}$/, { message: '手机号格式不正确' })
+  phone: string;
 
   @ApiProperty({ description: '管理员昵称', example: 'admin', required: false })
   @IsOptional()
@@ -69,16 +58,6 @@ export class CreateManagerDto {
   avatar?: string;
 
   @ApiProperty({
-    description: '手机号',
-    example: '13800138000',
-    required: false,
-  })
-  @IsOptional()
-  @IsString({ message: '手机号必须是字符串' })
-  @Matches(/^1[3-9]\d{9}$/, { message: '手机号格式不正确' })
-  phone?: string;
-
-  @ApiProperty({
     description: '邮箱',
     example: 'admin@example.com',
     required: false,
@@ -87,25 +66,4 @@ export class CreateManagerDto {
   @IsEmail({}, { message: '邮箱格式不正确' })
   @Length(0, 100, { message: '邮箱最大长度为100个字符' })
   email?: string;
-
-  @ApiProperty({
-    description: '状态：0-禁用，1-正常',
-    example: 1,
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: '状态必须为数字' })
-  status?: number;
-
-  @ApiProperty({ description: '创建时间', required: false })
-  @IsOptional()
-  created_at?: Date;
-
-  @ApiProperty({ description: '更新时间', required: false })
-  @IsOptional()
-  updated_at?: Date;
-
-  @ApiProperty({ description: '删除时间', required: false })
-  @IsOptional()
-  deleted_at?: Date;
 }

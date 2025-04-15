@@ -12,6 +12,9 @@ export class Manager {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
+  @Column({ type: 'bigint', default: 0 })
+  manager_id: number;
+
   @Column({ type: 'varchar', length: 50, unique: true })
   username: string;
 

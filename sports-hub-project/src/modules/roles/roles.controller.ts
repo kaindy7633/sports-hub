@@ -29,10 +29,12 @@ import {
   PaginatedRoleResponseDto,
 } from './dto/role-response.dto';
 import { JwtAuthGuard } from '../../core/token/jwt-auth.guard';
+import { RoleGuard, Roles } from '../../core/token/role.guard';
 
 @ApiTags('roles')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles('admin')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

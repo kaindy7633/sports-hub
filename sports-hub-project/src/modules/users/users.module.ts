@@ -4,7 +4,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UserAuth } from './entities/user-auth.entity';
-import { Role } from './entities/role.entity';
+import { Role } from '../roles/entities/role.entity';
 import { UserRole } from './entities/user-role.entity';
 
 @Module({

@@ -7,14 +7,25 @@ import {
   Param,
   Delete,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ManagersService } from './managers.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
 import { Manager } from './entities/manager.entity';
+import { JwtAuthGuard } from '../../core/token/jwt-auth.guard';
+import { RoleGuard, Roles } from '../../core/token/role.guard';
 
 @ApiTags('managers')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles('admin')
 @Controller('managers')
 export class ManagersController {
   constructor(private readonly managersService: ManagersService) {}

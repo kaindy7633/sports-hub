@@ -16,6 +16,10 @@ export class Role {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: bigint;
 
+  @ApiProperty({ description: '业务角色ID', example: 10001 })
+  @Column({ type: 'bigint', unique: true })
+  role_id: bigint;
+
   @ApiProperty({ description: '角色名称', example: '管理员' })
   @Column({ length: 50 })
   name: string;

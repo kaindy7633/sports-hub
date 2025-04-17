@@ -218,6 +218,7 @@ EXECUTE FUNCTION update_modified_column();
 -- 用户角色表
 CREATE TABLE roles (
     id BIGSERIAL PRIMARY KEY,
+    role_id BIGINT NOT NULL UNIQUE,
     name VARCHAR(50) NOT NULL,
     code VARCHAR(50) NOT NULL,
     description VARCHAR(255),
@@ -227,7 +228,8 @@ CREATE TABLE roles (
     deleted_at TIMESTAMP
 );
 
-COMMENT ON COLUMN roles.id IS '角色ID';
+COMMENT ON COLUMN roles.id IS 'ID';
+COMMENT ON COLUMN roles.role_id IS '角色ID';
 COMMENT ON COLUMN roles.name IS '角色名称';
 COMMENT ON COLUMN roles.code IS '角色编码';
 COMMENT ON COLUMN roles.description IS '角色描述';

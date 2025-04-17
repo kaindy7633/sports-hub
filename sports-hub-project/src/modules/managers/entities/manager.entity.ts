@@ -16,7 +16,7 @@ export class Manager {
 
   @ApiProperty({ description: '管理员ID', example: '0' })
   @Column({ type: 'bigint', default: 0 })
-  manager_id: number;
+  manager_id: bigint;
 
   @ApiProperty({ description: '管理员账号', example: 'admin' })
   @Column({ type: 'varchar', length: 50, unique: true })

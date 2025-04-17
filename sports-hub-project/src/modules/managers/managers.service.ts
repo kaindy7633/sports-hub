@@ -34,6 +34,8 @@ export class ManagersService {
       throw new ConflictException(`账号 ${createManagerDto.username} 已存在`);
     }
 
+    // 生成雪花ID
+    const manager_id = this.snowflakeService.generate();
     // 生成盐值
     const salt = crypto.randomBytes(16).toString('hex');
     // 使用盐值加密密码
@@ -44,6 +46,7 @@ export class ManagersService {
     // 创建管理员实体
     const manager = this.managerRepository.create({
       ...createManagerDto,
+      manager_id,
       password: hashedPassword,
       salt,
     });

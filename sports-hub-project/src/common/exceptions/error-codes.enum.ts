@@ -9,7 +9,7 @@ export enum ErrorCode {
   // 通用错误 (00模块)
   PARAM_INVALID = 40001, // 请求参数无效
   RESOURCE_NOT_FOUND = 40004, // 资源不存在
-  PERMISSION_DENIED = 40301, // 权限不足
+  PERMISSION_DENIED = 40300, // 权限不足 - 修改为40300，避免与ADMIN_NOT_FOUND冲突
   SERVER_ERROR = 50000, // 服务器内部错误
 
   // 用户模块错误 (01模块)
@@ -32,7 +32,7 @@ export enum ErrorCode {
 /**
  * 错误码对应的错误消息
  */
-export const ErrorMessages = {
+export const ErrorMessages: Record<ErrorCode, string> = {
   [ErrorCode.PARAM_INVALID]: '请求参数无效',
   [ErrorCode.RESOURCE_NOT_FOUND]: '资源不存在',
   [ErrorCode.PERMISSION_DENIED]: '权限不足',
@@ -45,7 +45,7 @@ export const ErrorMessages = {
 
   [ErrorCode.ADMIN_NOT_FOUND]: '管理员不存在',
   [ErrorCode.ADMIN_ALREADY_EXISTS]: '管理员已存在',
-  [ErrorCode.ADMIN_PASSWORD_ERROR]: '密码错误',
+  [ErrorCode.ADMIN_PASSWORD_ERROR]: '管理员密码错误',
   [ErrorCode.ADMIN_LOGIN_FAILED]: '管理员登录失败',
 
   [ErrorCode.TEAM_NOT_FOUND]: '团队不存在',

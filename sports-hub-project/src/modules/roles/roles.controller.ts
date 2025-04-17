@@ -1,3 +1,4 @@
+// src/modules/roles/roles.controller.ts
 import {
   Controller,
   Get,
@@ -10,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -73,22 +75,22 @@ export class RolesController {
     return await this.rolesService.findAllRoles();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: '根据ID获取角色详情' })
-  @ApiParam({ name: 'id', description: '角色ID' })
+  @Get(':roleId')
+  @ApiOperation({ summary: '根据业务ID获取角色详情' })
+  @ApiParam({ name: 'roleId', description: '业务角色ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '返回角色详情',
     type: RoleResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '角色不存在' })
-  async findOne(@Param('id') id: string) {
-    return await this.rolesService.findOne(+id);
+  async findOne(@Param('roleId', ParseIntPipe) roleId: bigint) {
+    return await this.rolesService.findOne(roleId);
   }
 
-  @Patch(':id')
+  @Patch(':roleId')
   @ApiOperation({ summary: '更新角色信息' })
-  @ApiParam({ name: 'id', description: '角色ID' })
+  @ApiParam({ name: 'roleId', description: '业务角色ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '角色更新成功',
@@ -96,27 +98,30 @@ export class RolesController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '角色不存在' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '请求参数无效' })
-  async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return await this.rolesService.update(+id, updateRoleDto);
+  async update(
+    @Param('roleId', ParseIntPipe) roleId: bigint,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    return await this.rolesService.update(roleId, updateRoleDto);
   }
 
-  @Delete(':id')
+  @Delete(':roleId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '删除角色' })
-  @ApiParam({ name: 'id', description: '角色ID' })
+  @ApiParam({ name: 'roleId', description: '业务角色ID' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '角色删除成功' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '角色不存在' })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: '角色已分配给用户，无法删除',
   })
-  async remove(@Param('id') id: string) {
-    await this.rolesService.remove(+id);
+  async remove(@Param('roleId', ParseIntPipe) roleId: bigint) {
+    await this.rolesService.remove(roleId);
   }
 
   @Post('assign/:userId')
   @ApiOperation({ summary: '给用户分配角色' })
-  @ApiParam({ name: 'userId', description: '用户ID' })
+  @ApiParam({ name: 'userId', description: '业务用户ID' })
   @ApiResponse({ status: HttpStatus.OK, description: '角色分配成功' })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -124,10 +129,10 @@ export class RolesController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '请求参数无效' })
   async assignRoles(
-    @Param('userId') userId: string,
-    @Body('roleIds') roleIds: number[],
+    @Param('userId', ParseIntPipe) userId: bigint,
+    @Body('roleIds') roleIds: bigint[],
   ) {
-    await this.rolesService.assignRolesToUser(+userId, roleIds);
+    await this.rolesService.assignRolesToUser(userId, roleIds);
     return { message: '角色分配成功' };
   }
 
@@ -142,14 +147,14 @@ export class RolesController {
 
   @Get('user/:userId')
   @ApiOperation({ summary: '获取用户的角色列表' })
-  @ApiParam({ name: 'userId', description: '用户ID' })
+  @ApiParam({ name: 'userId', description: '业务用户ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '返回用户的角色列表',
     type: [RoleResponseDto],
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '用户不存在' })
-  async getUserRoles(@Param('userId') userId: string) {
-    return await this.rolesService.findUserRoles(+userId);
+  async getUserRoles(@Param('userId', ParseIntPipe) userId: bigint) {
+    return await this.rolesService.findUserRoles(userId);
   }
 }

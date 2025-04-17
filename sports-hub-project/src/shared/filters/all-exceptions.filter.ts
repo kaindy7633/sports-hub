@@ -23,7 +23,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // 获取请求ID（如果存在）
     const requestId = request['requestId'] || 'unknown';
 
-    // 确定状态码和错误信息
+    // 确定状态码
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
@@ -33,8 +33,33 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const errorResponse: any =
       exception instanceof HttpException ? exception.getResponse() : {};
 
-    // 提取业务错误码（如果存在）
-    const errorCode = errorResponse.code || null;
+    // 如果异常响应已经是标准格式(有code和msg)，直接使用
+    if (
+      errorResponse &&
+      typeof errorResponse === 'object' &&
+      'code' in errorResponse &&
+      'msg' in errorResponse
+    ) {
+      // 记录结构化日志
+      logger.error({
+        status,
+        message: errorResponse.msg,
+        code: errorResponse.code,
+        requestId,
+        ip: requestIp.getClientIp(request),
+        method: request.method,
+        url: request.url,
+        query: request.query,
+        body: request.body,
+        stack: exception instanceof Error ? exception.stack : undefined,
+      });
+
+      response.status(status).json(errorResponse);
+      return;
+    }
+
+    // 提取错误码(如果存在)
+    const errorCode = errorResponse.code || status;
 
     // 提取错误消息
     const message = this.extractErrorMessage(exception, errorResponse);
@@ -59,15 +84,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // 构造统一响应格式
     const responseBody = {
-      code: status,
+      code: errorCode,
       data: null,
       msg: isProduction && status >= 500 ? productionMessage : message,
     };
 
     // 在开发环境下，可以添加额外的调试信息
     if (!isProduction && exception instanceof Error) {
-      // 将调试信息添加到响应的msg中，而不是作为单独的字段
-      responseBody.msg += '\n调试信息: ' + exception.stack;
+      // 在日志中添加堆栈信息，不要在响应中返回
+      logger.debug({
+        requestId,
+        stack: exception.stack,
+      });
     }
 
     response.status(status).json(responseBody);

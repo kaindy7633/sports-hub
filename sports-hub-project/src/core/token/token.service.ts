@@ -1,9 +1,10 @@
+// src/core/token/token.service.ts
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 
 export interface TokenPayload {
-  userId: string;
+  userId: string; // 业务ID而非数据库自增ID
   username: string;
   [key: string]: any;
 }

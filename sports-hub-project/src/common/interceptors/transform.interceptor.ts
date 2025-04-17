@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 
 export interface Response<T> {
   code: number;
-  data: T;
+  data: T | null;
   msg: string;
 }
 
@@ -22,11 +22,24 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        code: 200,
-        data,
-        msg: 'ok',
-      })),
+      map((data) => {
+        // 如果返回的数据已经是标准格式，直接返回
+        if (
+          data &&
+          typeof data === 'object' &&
+          'code' in data &&
+          'msg' in data
+        ) {
+          return data;
+        }
+
+        // 否则包装为标准格式
+        return {
+          code: 200,
+          data: data,
+          msg: 'ok',
+        };
+      }),
     );
   }
 }

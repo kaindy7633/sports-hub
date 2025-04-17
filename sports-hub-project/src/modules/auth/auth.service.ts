@@ -1,7 +1,9 @@
+// src/modules/auth/auth.service.ts
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { TokenService } from '../../core/token/token.service';
@@ -9,13 +11,17 @@ import { CacheService } from '../../core/cache/cache.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as crypto from 'crypto';
+import { SnowflakeService } from '../../core/snowflake/snowflake.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private tokenService: TokenService,
     private cacheService: CacheService,
+    private snowflakeService: SnowflakeService,
   ) {}
 
   /**
@@ -33,7 +39,7 @@ export class AuthService {
     await this.cacheService.setVerificationCode(phone, verificationCode, 60);
 
     // TODO 实际应用中，这里应该调用短信服务发送验证码
-    console.log(`向手机号 ${phone} 发送验证码: ${verificationCode}`);
+    this.logger.log(`向手机号 ${phone} 发送验证码: ${verificationCode}`);
 
     return { message: '验证码已发送' };
   }
@@ -49,17 +55,17 @@ export class AuthService {
       const storedCode = await this.cacheService.getVerificationCode(phone);
 
       if (!storedCode) {
-        console.log(`验证码不存在或已过期: ${phone}`);
+        this.logger.warn(`验证码不存在或已过期: ${phone}`);
         return false;
       }
 
       const isValid = storedCode === code;
-      console.log(
+      this.logger.debug(
         `验证码验证${isValid ? '成功' : '失败'}: ${phone}, 输入=${code}, 存储=${storedCode}`,
       );
       return isValid;
     } catch (error) {
-      console.error(`验证码验证过程出错: ${error.message}`);
+      this.logger.error(`验证码验证过程出错: ${error.message}`);
       return false;
     }
   }
@@ -73,7 +79,7 @@ export class AuthService {
     const { phone, verificationCode, password } = registerDto;
 
     // 验证验证码
-    if (!this.verifyCode(phone, verificationCode)) {
+    if (!(await this.verifyCode(phone, verificationCode))) {
       throw new BadRequestException('验证码无效或已过期');
     }
 
@@ -159,9 +165,9 @@ export class AuthService {
       });
     }
 
-    // 生成token
+    // 生成token - 使用业务ID
     const token = this.tokenService.generateToken({
-      userId: user.id.toString(),
+      userId: user.user_id.toString(), // 使用业务ID
       username: user.username,
       phone: user.phone,
     });

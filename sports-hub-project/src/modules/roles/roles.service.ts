@@ -1,3 +1,4 @@
+// src/modules/roles/roles.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -15,6 +16,7 @@ import { QueryRoleDto } from './dto/query-role.dto';
 import { UserRoleDto, BatchAssignRoleDto } from './dto/assign-role.dto';
 import { DatabaseException } from '../../common/exceptions/database.exception';
 import { ResourceNotFoundException } from '../../common/exceptions/resource-not-found.exception';
+import { SnowflakeService } from '../../core/snowflake/snowflake.service';
 
 @Injectable()
 export class RolesService {
@@ -28,6 +30,7 @@ export class RolesService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private dataSource: DataSource,
+    private readonly snowflakeService: SnowflakeService,
   ) {}
 
   /**
@@ -48,8 +51,14 @@ export class RolesService {
         );
       }
 
+      // 生成业务角色ID
+      const role_id = this.snowflakeService.generate();
+
       // 创建角色
-      const role = this.roleRepository.create(createRoleDto);
+      const role = this.roleRepository.create({
+        ...createRoleDto,
+        role_id,
+      });
       return await this.roleRepository.save(role);
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -128,19 +137,37 @@ export class RolesService {
   }
 
   /**
-   * 根据ID查询角色
-   * @param id 角色ID
+   * 根据内部ID查询角色 (仅内部使用)
+   * @param id 内部角色ID
    * @returns 角色对象
    */
-  async findOne(id: number): Promise<Role> {
+  private async findById(id: bigint): Promise<Role> {
+    const role = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['userRoles'],
+    });
+
+    if (!role) {
+      throw new ResourceNotFoundException('角色', id.toString());
+    }
+
+    return role;
+  }
+
+  /**
+   * 根据业务ID查询角色
+   * @param roleId 业务角色ID
+   * @returns 角色对象
+   */
+  async findOne(roleId: bigint): Promise<Role> {
     try {
       const role = await this.roleRepository.findOne({
-        where: { id: BigInt(id) },
+        where: { role_id: roleId },
         relations: ['userRoles'],
       });
 
       if (!role) {
-        throw new ResourceNotFoundException('角色', id);
+        throw new ResourceNotFoundException('角色', roleId.toString());
       }
 
       return role;
@@ -155,24 +182,18 @@ export class RolesService {
 
   /**
    * 更新角色
-   * @param id 角色ID
+   * @param roleId 业务角色ID
    * @param updateRoleDto 更新数据
    * @returns 更新后的角色
    */
-  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(roleId: bigint, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       // 查询要更新的角色是否存在
-      const role = await this.roleRepository.findOne({
-        where: { id: BigInt(id) },
-      });
-
-      if (!role) {
-        throw new ResourceNotFoundException('角色', id);
-      }
+      const role = await this.findOne(roleId);
 
       // 如果更新了角色编码，检查是否与其他角色冲突
       if (updateRoleDto.code && updateRoleDto.code !== role.code) {
@@ -188,11 +209,12 @@ export class RolesService {
       }
 
       // 更新角色
-      await this.roleRepository.update({ id: BigInt(id) }, updateRoleDto);
+      Object.assign(role, updateRoleDto);
+      await this.roleRepository.save(role);
       await queryRunner.commitTransaction();
 
       // 返回更新后的角色
-      return await this.findOne(id);
+      return role;
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
@@ -212,23 +234,16 @@ export class RolesService {
 
   /**
    * 删除角色
-   * @param id 角色ID
+   * @param roleId 业务角色ID
    */
-  async remove(id: number): Promise<void> {
+  async remove(roleId: bigint): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       // 查询要删除的角色是否存在
-      const role = await this.roleRepository.findOne({
-        where: { id: BigInt(id) },
-        relations: ['userRoles'],
-      });
-
-      if (!role) {
-        throw new ResourceNotFoundException('角色', id);
-      }
+      const role = await this.findOne(roleId);
 
       // 检查角色是否已分配给用户
       if (role.userRoles && role.userRoles.length > 0) {
@@ -238,7 +253,7 @@ export class RolesService {
       }
 
       // 删除角色（软删除）
-      await this.roleRepository.softDelete({ id: BigInt(id) });
+      await this.roleRepository.softDelete({ id: role.id });
 
       await queryRunner.commitTransaction();
     } catch (error) {
@@ -260,27 +275,27 @@ export class RolesService {
 
   /**
    * 给用户分配角色
-   * @param userId 用户ID
-   * @param roleIds 角色ID数组
+   * @param userId 业务用户ID
+   * @param roleIds 业务角色ID数组
    */
-  async assignRolesToUser(userId: number, roleIds: number[]): Promise<void> {
+  async assignRolesToUser(userId: bigint, roleIds: bigint[]): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      // 检查用户是否存在
+      // 查找用户
       const user = await this.userRepository.findOne({
-        where: { id: BigInt(userId) },
+        where: { user_id: userId },
       });
 
       if (!user) {
-        throw new ResourceNotFoundException('用户', userId);
+        throw new ResourceNotFoundException('用户', userId.toString());
       }
 
-      // 检查角色是否都存在
+      // 查找角色
       const roles = await this.roleRepository.find({
-        where: { id: In(roleIds.map((id) => BigInt(id))) },
+        where: { role_id: In(roleIds) },
       });
 
       if (roles.length !== roleIds.length) {
@@ -288,15 +303,18 @@ export class RolesService {
       }
 
       // 删除用户当前的所有角色
-      await this.userRoleRepository.delete({ user_id: BigInt(userId) });
+      await this.userRoleRepository.delete({ user_id: user.id });
 
       // 添加新的角色关联
-      const userRoles = roleIds.map((roleId) => ({
-        user_id: BigInt(userId),
-        role_id: BigInt(roleId),
+      const userRoles = roles.map((role) => ({
+        user_id: user.id,
+        role_id: role.id,
       }));
 
-      await this.userRoleRepository.insert(userRoles);
+      if (userRoles.length > 0) {
+        await this.userRoleRepository.insert(userRoles);
+      }
+
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -331,7 +349,10 @@ export class RolesService {
 
       // 逐个处理每个用户的角色分配
       for (const assignment of assignments) {
-        await this.assignRolesToUser(assignment.userId, assignment.roleIds);
+        await this.assignRolesToUser(
+          BigInt(assignment.userId),
+          assignment.roleIds.map((id) => BigInt(id)),
+        );
       }
 
       await queryRunner.commitTransaction();
@@ -354,23 +375,23 @@ export class RolesService {
 
   /**
    * 获取用户的角色列表
-   * @param userId 用户ID
+   * @param userId 业务用户ID
    * @returns 角色列表
    */
-  async findUserRoles(userId: number): Promise<Role[]> {
+  async findUserRoles(userId: bigint): Promise<Role[]> {
     try {
-      // 检查用户是否存在
+      // 查找用户
       const user = await this.userRepository.findOne({
-        where: { id: BigInt(userId) },
+        where: { user_id: userId },
       });
 
       if (!user) {
-        throw new ResourceNotFoundException('用户', userId);
+        throw new ResourceNotFoundException('用户', userId.toString());
       }
 
-      // 查询用户的角色
+      // 查询用户的角色关联
       const userRoles = await this.userRoleRepository.find({
-        where: { user_id: BigInt(userId) },
+        where: { user_id: user.id },
         relations: ['role'],
       });
 

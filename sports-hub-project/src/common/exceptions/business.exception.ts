@@ -10,14 +10,12 @@ export class BusinessException extends HttpException {
     public readonly code: number = 10001,
     cause?: Error,
   ) {
-    super(
-      {
-        message,
-        code,
-        timestamp: new Date().toISOString(),
-      },
-      HttpStatus.BAD_REQUEST,
-      { cause },
-    );
+    const response = {
+      code,
+      msg: message,
+      data: null,
+    };
+
+    super(response, HttpStatus.BAD_REQUEST, { cause });
   }
 }

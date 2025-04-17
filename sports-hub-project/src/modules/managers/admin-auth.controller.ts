@@ -1,3 +1,4 @@
+// src/modules/managers/admin-auth.controller.ts
 import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ManagersService } from './managers.service';
@@ -36,9 +37,9 @@ export class AdminAuthController {
       };
     }
 
-    // 生成token
+    // 生成token - 使用业务ID（manager_id）而非内部ID
     const token = this.tokenService.generateToken({
-      userId: manager.id.toString(),
+      userId: manager.manager_id.toString(), // 使用业务ID
       username: manager.username,
       role: 'admin', // 设置角色为admin，用于角色守卫验证
     });

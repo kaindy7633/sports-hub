@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+// src/modules/users/users.service.ts
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -8,9 +9,14 @@ import { UserRole } from './entities/user-role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as crypto from 'crypto';
+import { ResourceNotFoundException } from '../../common/exceptions/resource-not-found.exception';
+import { DatabaseException } from '../../common/exceptions/database.exception';
+import { SnowflakeService } from '../../core/snowflake/snowflake.service';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -20,6 +26,7 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(UserRole)
     private readonly userRoleRepository: Repository<UserRole>,
+    private readonly snowflakeService: SnowflakeService,
   ) {}
 
   /**
@@ -28,26 +35,31 @@ export class UsersService {
    * @returns
    */
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // 生成盐值
-    const salt = crypto.randomBytes(16).toString('hex');
-    // 使用盐值加密密码
-    const hashedPassword = crypto
-      .pbkdf2Sync(createUserDto.password, salt, 1000, 64, 'sha512')
-      .toString('hex');
+    try {
+      // 生成盐值
+      const salt = crypto.randomBytes(16).toString('hex');
+      // 使用盐值加密密码
+      const hashedPassword = crypto
+        .pbkdf2Sync(createUserDto.password, salt, 1000, 64, 'sha512')
+        .toString('hex');
 
-    // 创建业务用户ID (简单实现，实际可能需要更复杂的逻辑)
-    const businessUserId = Date.now();
+      // 生成业务用户ID（使用雪花算法）
+      const user_id = this.snowflakeService.generate();
 
-    // 创建用户实体
-    const user = this.userRepository.create({
-      ...createUserDto,
-      password: hashedPassword,
-      salt,
-      user_id: BigInt(businessUserId),
-    });
+      // 创建用户实体
+      const user = this.userRepository.create({
+        ...createUserDto,
+        password: hashedPassword,
+        salt,
+        user_id,
+      });
 
-    // 保存用户
-    return await this.userRepository.save(user);
+      // 保存用户
+      return await this.userRepository.save(user);
+    } catch (error) {
+      this.logger.error(`创建用户失败: ${error.message}`, error.stack);
+      throw new DatabaseException('创建', '用户', error);
+    }
   }
 
   /**
@@ -62,84 +74,134 @@ export class UsersService {
     phone?: string;
     email?: string;
   }) {
-    if (!params) {
-      return await this.userRepository.find({
+    try {
+      if (!params) {
+        return await this.userRepository.find({
+          relations: ['auths', 'roles'],
+        });
+      }
+
+      const { pageNum, pageSize, username, phone, email } = params;
+      const skip = (pageNum - 1) * pageSize;
+
+      // 构建查询条件
+      const whereConditions: any = {};
+      if (username) whereConditions.username = username;
+      if (phone) whereConditions.phone = phone;
+      if (email) whereConditions.email = email;
+
+      // 查询总数
+      const total = await this.userRepository.count({ where: whereConditions });
+
+      // 查询数据
+      const users = await this.userRepository.find({
+        where: whereConditions,
         relations: ['auths', 'roles'],
+        skip,
+        take: pageSize,
       });
+
+      return {
+        list: users,
+        total,
+        pageNum,
+        pageSize,
+      };
+    } catch (error) {
+      this.logger.error(`查询用户列表失败: ${error.message}`, error.stack);
+      throw new DatabaseException('查询', '用户列表', error);
     }
-
-    const { pageNum, pageSize, username, phone, email } = params;
-    const skip = (pageNum - 1) * pageSize;
-
-    // 构建查询条件
-    const whereConditions: any = {};
-    if (username) whereConditions.username = username;
-    if (phone) whereConditions.phone = phone;
-    if (email) whereConditions.email = email;
-
-    // 查询总数
-    const total = await this.userRepository.count({ where: whereConditions });
-
-    // 查询数据
-    const users = await this.userRepository.find({
-      where: whereConditions,
-      relations: ['auths', 'roles'],
-      skip,
-      take: pageSize,
-    });
-
-    return {
-      list: users,
-      total,
-      pageNum,
-      pageSize,
-    };
   }
 
   /**
-   * 根据ID查找用户
-   * @param id
-   * @returns
+   * 根据内部ID查询用户（仅内部使用）
+   * @param id 内部用户ID
+   * @returns 用户实体
    */
-  async findOne(id: number): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { id: BigInt(id) },
+  private async findById(id: bigint): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id },
       relations: ['auths', 'roles'],
     });
+
+    if (!user) {
+      throw new ResourceNotFoundException('用户', id.toString());
+    }
+
+    return user;
+  }
+
+  /**
+   * 根据业务ID查询用户
+   * @param userId 业务用户ID
+   * @returns 用户实体
+   */
+  async findOne(userId: bigint): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { user_id: userId },
+        relations: ['auths', 'roles'],
+      });
+
+      if (!user) {
+        throw new ResourceNotFoundException('用户', userId.toString());
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof ResourceNotFoundException) {
+        throw error;
+      }
+      this.logger.error(`查询用户详情失败: ${error.message}`, error.stack);
+      throw new DatabaseException('查询', '用户详情', error);
+    }
   }
 
   /**
    * 更新用户信息
-   * @param id
-   * @param updateUserDto
-   * @returns
+   * @param userId 业务用户ID
+   * @param updateUserDto 更新内容
+   * @returns 更新后的用户
    */
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
-    const user = await this.findOne(id);
-    if (!user) {
-      return null;
-    }
+  async update(userId: bigint, updateUserDto: UpdateUserDto): Promise<User> {
+    try {
+      const user = await this.findOne(userId);
 
-    // 如果更新包含密码，需要重新加密
-    if (updateUserDto.password) {
-      const hashedPassword = crypto
-        .pbkdf2Sync(updateUserDto.password, user.salt, 1000, 64, 'sha512')
-        .toString('hex');
-      updateUserDto.password = hashedPassword;
-    }
+      // 如果更新包含密码，需要重新加密
+      if (updateUserDto.password) {
+        const hashedPassword = crypto
+          .pbkdf2Sync(updateUserDto.password, user.salt, 1000, 64, 'sha512')
+          .toString('hex');
+        updateUserDto.password = hashedPassword;
+      }
 
-    // 更新用户信息
-    Object.assign(user, updateUserDto);
-    return await this.userRepository.save(user);
+      // 更新用户信息
+      Object.assign(user, updateUserDto);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundException) {
+        throw error;
+      }
+      this.logger.error(`更新用户失败: ${error.message}`, error.stack);
+      throw new DatabaseException('更新', '用户', error);
+    }
   }
 
   /**
    * 删除用户
-   * @param id
-   * @returns
+   * @param userId 业务用户ID
    */
-  async remove(id: number): Promise<void> {
-    await this.userRepository.softDelete({ id: BigInt(id) });
+  async remove(userId: bigint): Promise<void> {
+    try {
+      const user = await this.findOne(userId);
+      await this.userRepository.softDelete({ id: user.id });
+    } catch (error) {
+      if (error instanceof ResourceNotFoundException) {
+        throw error;
+      }
+      this.logger.error(`删除用户失败: ${error.message}`, error.stack);
+      throw new DatabaseException('删除', '用户', error);
+    }
   }
 
   /**
@@ -148,19 +210,31 @@ export class UsersService {
    * @returns
    */
   async addUserAuth(authData: {
-    userId: number;
+    userId: bigint;
     identityType: string;
     identifier: string;
     credential: string;
   }) {
-    const { userId, identityType, identifier, credential } = authData;
-    const userAuth = this.userAuthRepository.create({
-      user_id: BigInt(userId),
-      identity_type: identityType,
-      identifier,
-      credential,
-    });
-    return await this.userAuthRepository.save(userAuth);
+    try {
+      const { userId, identityType, identifier, credential } = authData;
+
+      // 查找用户是否存在
+      const user = await this.findOne(userId);
+
+      const userAuth = this.userAuthRepository.create({
+        user_id: user.id, // 使用内部ID关联
+        identity_type: identityType,
+        identifier,
+        credential,
+      });
+      return await this.userAuthRepository.save(userAuth);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundException) {
+        throw error;
+      }
+      this.logger.error(`添加用户认证失败: ${error.message}`, error.stack);
+      throw new DatabaseException('添加', '用户认证', error);
+    }
   }
 
   /**
@@ -224,32 +298,55 @@ export class UsersService {
     phone?: string;
     email?: string;
   }): Promise<User[]> {
-    // 构建查询条件
-    const whereConditions: any = {};
-    if (params) {
-      if (params.username) whereConditions.username = params.username;
-      if (params.phone) whereConditions.phone = params.phone;
-      if (params.email) whereConditions.email = params.email;
-    }
+    try {
+      // 构建查询条件
+      const whereConditions: any = {};
+      if (params) {
+        if (params.username) whereConditions.username = params.username;
+        if (params.phone) whereConditions.phone = params.phone;
+        if (params.email) whereConditions.email = params.email;
+      }
 
-    return await this.userRepository.find({
-      where: whereConditions,
-      relations: ['auths', 'roles'],
-    });
+      return await this.userRepository.find({
+        where: whereConditions,
+        relations: ['auths', 'roles'],
+      });
+    } catch (error) {
+      this.logger.error(`查询用户列表失败: ${error.message}`, error.stack);
+      throw new DatabaseException('查询', '用户列表', error);
+    }
   }
 
   /**
    * 为用户分配角色
-   * @param userId
-   * @param roleId
+   * @param userId 业务用户ID
+   * @param roleId 业务角色ID
    * @returns
    */
-  async assignRole(userId: number, roleId: number): Promise<UserRole> {
-    const userRole = this.userRoleRepository.create({
-      user_id: BigInt(userId),
-      role_id: BigInt(roleId),
-    });
-    return await this.userRoleRepository.save(userRole);
+  async assignRole(userId: bigint, roleId: bigint): Promise<UserRole> {
+    try {
+      // 查找用户和角色
+      const user = await this.findOne(userId);
+      const role = await this.roleRepository.findOne({
+        where: { role_id: roleId },
+      });
+
+      if (!role) {
+        throw new ResourceNotFoundException('角色', roleId.toString());
+      }
+
+      const userRole = this.userRoleRepository.create({
+        user_id: user.id, // 使用内部ID
+        role_id: role.id, // 使用内部ID
+      });
+      return await this.userRoleRepository.save(userRole);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundException) {
+        throw error;
+      }
+      this.logger.error(`分配角色失败: ${error.message}`, error.stack);
+      throw new DatabaseException('分配', '用户角色', error);
+    }
   }
 
   /**

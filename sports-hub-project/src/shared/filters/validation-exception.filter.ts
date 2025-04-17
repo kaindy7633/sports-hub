@@ -21,6 +21,18 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     const exceptionResponse: any = exception.getResponse();
+
+    // 如果异常响应已经是标准格式，直接使用
+    if (
+      exceptionResponse &&
+      typeof exceptionResponse === 'object' &&
+      'code' in exceptionResponse &&
+      'msg' in exceptionResponse
+    ) {
+      response.status(status).json(exceptionResponse);
+      return;
+    }
+
     const errorMessages = this.extractValidationErrors(exceptionResponse);
     const requestId = request['requestId'] || 'unknown';
 

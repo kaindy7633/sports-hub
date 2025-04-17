@@ -1,3 +1,4 @@
+// src/modules/managers/managers.controller.ts
 import {
   Controller,
   Get,
@@ -8,12 +9,14 @@ import {
   Delete,
   HttpStatus,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiResponse,
   ApiTags,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 import { ManagersService } from './managers.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
@@ -39,7 +42,6 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.CONFLICT, description: '账号已存在' })
   async create(@Body() createManagerDto: CreateManagerDto): Promise<Manager> {
-    // 确保 createManagerDto 字段与 Manager 实体一致
     return this.managersService.create(createManagerDto);
   }
 
@@ -54,21 +56,24 @@ export class ManagersController {
     return this.managersService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: '根据ID获取管理员' })
+  @Get(':managerId')
+  @ApiOperation({ summary: '根据业务ID获取管理员' })
+  @ApiParam({ name: 'managerId', description: '业务管理员ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '获取成功',
     type: Manager,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
-  async findOne(@Param('id') id: string): Promise<Manager> {
-    // 确保 id 类型与 Manager 实体主键一致
-    return this.managersService.findOne(BigInt(id));
+  async findOne(
+    @Param('managerId', ParseIntPipe) managerId: bigint,
+  ): Promise<Manager> {
+    return this.managersService.findOne(managerId);
   }
 
-  @Patch(':id')
+  @Patch(':managerId')
   @ApiOperation({ summary: '更新管理员信息' })
+  @ApiParam({ name: 'managerId', description: '业务管理员ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '更新成功',
@@ -76,19 +81,20 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async update(
-    @Param('id') id: string,
+    @Param('managerId', ParseIntPipe) managerId: bigint,
     @Body() updateManagerDto: UpdateManagerDto,
   ): Promise<Manager> {
-    // 确保 updateManagerDto 字段与 Manager 实体一致
-    return this.managersService.update(BigInt(id), updateManagerDto);
+    return this.managersService.update(managerId, updateManagerDto);
   }
 
-  @Delete(':id')
+  @Delete(':managerId')
   @ApiOperation({ summary: '删除管理员' })
+  @ApiParam({ name: 'managerId', description: '业务管理员ID' })
   @ApiResponse({ status: HttpStatus.OK, description: '删除成功' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
-  async remove(@Param('id') id: string): Promise<void> {
-    // 确保 id 类型与 Manager 实体主键一致
-    return this.managersService.remove(BigInt(id));
+  async remove(
+    @Param('managerId', ParseIntPipe) managerId: bigint,
+  ): Promise<void> {
+    return this.managersService.remove(managerId);
   }
 }

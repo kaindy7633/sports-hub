@@ -1,3 +1,4 @@
+// src/modules/roles/roles.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RolesService } from './roles.service';
@@ -6,9 +7,14 @@ import { Role } from './entities/role.entity';
 import { UserRole } from '../users/entities/user-role.entity';
 import { User } from '../users/entities/user.entity';
 import { TokenModule } from '../../core/token/token.module';
+import { SnowflakeModule } from '../../core/snowflake/snowflake.module'; // 添加这行
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Role, UserRole, User]), TokenModule],
+  imports: [
+    TypeOrmModule.forFeature([Role, UserRole, User]),
+    TokenModule,
+    SnowflakeModule, // 添加这行
+  ],
   controllers: [RolesController],
   providers: [RolesService],
   exports: [RolesService],

@@ -101,17 +101,23 @@ export class ManagersService {
    * @param managerId 业务管理员ID
    * @returns 管理员信息
    */
-  async findOne(managerId: bigint): Promise<Manager> {
+  async findOne(managerId: string): Promise<Manager> {
     try {
-      const manager = await this.managerRepository.findOne({
-        where: { manager_id: managerId },
-      });
+      this.logger.debug(`Searching for manager with business ID: ${managerId}`);
+
+      // 直接使用原始SQL查询以避免类型转换问题
+      const [manager] = await this.managerRepository.query(
+        'SELECT * FROM managers WHERE manager_id = $1 AND deleted_at IS NULL',
+        [managerId],
+      );
 
       if (!manager) {
-        throw new ResourceNotFoundException('管理员', managerId.toString());
+        throw new ResourceNotFoundException('管理员', managerId);
       }
 
-      return manager;
+      // 将原始查询结果转换为实体对象
+      // 将原始查询结果转换为Manager实体对象并返回
+      return Object.assign(new Manager(), manager);
     } catch (error) {
       if (error instanceof ResourceNotFoundException) {
         throw error;
@@ -145,7 +151,7 @@ export class ManagersService {
    * @returns 更新后的管理员信息
    */
   async update(
-    managerId: bigint,
+    managerId: string,
     updateManagerDto: UpdateManagerDto,
   ): Promise<Manager> {
     try {
@@ -201,7 +207,7 @@ export class ManagersService {
    * 删除管理员
    * @param managerId 业务管理员ID
    */
-  async remove(managerId: bigint): Promise<void> {
+  async remove(managerId: string): Promise<void> {
     try {
       // 查询要删除的管理员是否存在
       const manager = await this.findOne(managerId);
@@ -222,7 +228,7 @@ export class ManagersService {
    * 生成雪花ID
    * @returns 雪花ID
    */
-  generateSnowflakeId(): bigint {
+  generateSnowflakeId(): string {
     return this.snowflakeService.generate();
   }
 }

@@ -15,10 +15,10 @@ export class SnowflakeService {
 
   /**
    * 生成雪花ID
-   * @returns 雪花算法生成的唯一ID
+   * @returns 雪花算法生成的唯一ID（字符串格式）
    */
-  generate(): bigint {
-    return BigInt(this.snowflake.generate());
+  generate(): string {
+    return this.snowflake.generate().toString();
   }
 
   /**
@@ -26,7 +26,7 @@ export class SnowflakeService {
    * @param id 雪花ID
    * @returns 解析后的信息
    */
-  parse(id: string | number | bigint): any {
-    return this.snowflake.parse(id.toString());
+  parse(id: string): any {
+    return this.snowflake.parse(id);
   }
 }

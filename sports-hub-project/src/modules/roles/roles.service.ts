@@ -159,15 +159,16 @@ export class RolesService {
    * @param roleId 业务角色ID
    * @returns 角色对象
    */
-  async findOne(roleId: bigint): Promise<Role> {
+  async findOne(roleId: string): Promise<Role> {
     try {
-      const role = await this.roleRepository.findOne({
-        where: { role_id: roleId },
-        relations: ['userRoles'],
-      });
+      // 直接使用原始SQL查询
+      const [role] = await this.roleRepository.query(
+        'SELECT * FROM roles WHERE role_id = $1 AND deleted_at IS NULL',
+        [roleId],
+      );
 
       if (!role) {
-        throw new ResourceNotFoundException('角色', roleId.toString());
+        throw new ResourceNotFoundException('角色', roleId);
       }
 
       return role;
@@ -186,7 +187,7 @@ export class RolesService {
    * @param updateRoleDto 更新数据
    * @returns 更新后的角色
    */
-  async update(roleId: bigint, updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(roleId: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -236,7 +237,7 @@ export class RolesService {
    * 删除角色
    * @param roleId 业务角色ID
    */
-  async remove(roleId: bigint): Promise<void> {
+  async remove(roleId: string): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -278,7 +279,7 @@ export class RolesService {
    * @param userId 业务用户ID
    * @param roleIds 业务角色ID数组
    */
-  async assignRolesToUser(userId: bigint, roleIds: bigint[]): Promise<void> {
+  async assignRolesToUser(userId: string, roleIds: bigint[]): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -350,7 +351,7 @@ export class RolesService {
       // 逐个处理每个用户的角色分配
       for (const assignment of assignments) {
         await this.assignRolesToUser(
-          BigInt(assignment.userId),
+          assignment.userId.toString(),
           assignment.roleIds.map((id) => BigInt(id)),
         );
       }
@@ -378,7 +379,7 @@ export class RolesService {
    * @param userId 业务用户ID
    * @returns 角色列表
    */
-  async findUserRoles(userId: bigint): Promise<Role[]> {
+  async findUserRoles(userId: string): Promise<Role[]> {
     try {
       // 查找用户
       const user = await this.userRepository.findOne({

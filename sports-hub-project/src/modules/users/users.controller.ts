@@ -79,7 +79,7 @@ export class UsersController {
   @ApiParam({ name: 'userId', description: '业务用户ID' })
   @ApiResponse({ status: 200, description: '返回指定用户' })
   @ApiResponse({ status: 404, description: '用户不存在' })
-  async findOne(@Param('userId', ParseIntPipe) userId: bigint) {
+  async findOne(@Param('userId', ParseIntPipe) userId: string) {
     return await this.usersService.findOne(userId);
   }
 
@@ -89,7 +89,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: '用户更新成功' })
   @ApiResponse({ status: 404, description: '用户不存在' })
   async update(
-    @Param('userId', ParseIntPipe) userId: bigint,
+    @Param('userId', ParseIntPipe) userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return await this.usersService.update(userId, updateUserDto);
@@ -100,7 +100,7 @@ export class UsersController {
   @ApiParam({ name: 'userId', description: '业务用户ID' })
   @ApiResponse({ status: 200, description: '用户删除成功' })
   @ApiResponse({ status: 404, description: '用户不存在' })
-  async remove(@Param('userId', ParseIntPipe) userId: bigint) {
+  async remove(@Param('userId', ParseIntPipe) userId: string) {
     return await this.usersService.remove(userId);
   }
 
@@ -111,7 +111,7 @@ export class UsersController {
   async addAuth(
     @Body()
     authData: {
-      userId: bigint;
+      userId: string;
       identityType: string;
       identifier: string;
       credential: string;

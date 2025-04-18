@@ -10,6 +10,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { UserAuth } from './user-auth.entity';
 import { UserRole } from './user-role.entity';
+import { BigIntTransformer } from '../../../common/transformers/bigint.transformer';
 
 @Entity('users')
 export class User {
@@ -18,8 +19,11 @@ export class User {
   id: bigint;
 
   @ApiProperty({ description: '用户统一ID', example: '100001' })
-  @Column('bigint')
-  user_id: bigint;
+  @Column({
+    type: 'bigint',
+    transformer: new BigIntTransformer(),
+  })
+  user_id: string;
 
   @ApiProperty({ description: '用户名', example: 'johndoe' })
   @Column({ length: 50 })

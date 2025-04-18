@@ -84,7 +84,7 @@ export class RolesController {
     type: RoleResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '角色不存在' })
-  async findOne(@Param('roleId', ParseIntPipe) roleId: bigint) {
+  async findOne(@Param('roleId', ParseIntPipe) roleId: string) {
     return await this.rolesService.findOne(roleId);
   }
 
@@ -99,7 +99,7 @@ export class RolesController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '角色不存在' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '请求参数无效' })
   async update(
-    @Param('roleId', ParseIntPipe) roleId: bigint,
+    @Param('roleId', ParseIntPipe) roleId: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ) {
     return await this.rolesService.update(roleId, updateRoleDto);
@@ -115,7 +115,7 @@ export class RolesController {
     status: HttpStatus.BAD_REQUEST,
     description: '角色已分配给用户，无法删除',
   })
-  async remove(@Param('roleId', ParseIntPipe) roleId: bigint) {
+  async remove(@Param('roleId', ParseIntPipe) roleId: string) {
     await this.rolesService.remove(roleId);
   }
 
@@ -129,7 +129,7 @@ export class RolesController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '请求参数无效' })
   async assignRoles(
-    @Param('userId', ParseIntPipe) userId: bigint,
+    @Param('userId', ParseIntPipe) userId: string,
     @Body('roleIds') roleIds: bigint[],
   ) {
     await this.rolesService.assignRolesToUser(userId, roleIds);
@@ -154,7 +154,7 @@ export class RolesController {
     type: [RoleResponseDto],
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '用户不存在' })
-  async getUserRoles(@Param('userId', ParseIntPipe) userId: bigint) {
+  async getUserRoles(@Param('userId', ParseIntPipe) userId: string) {
     return await this.rolesService.findUserRoles(userId);
   }
 }

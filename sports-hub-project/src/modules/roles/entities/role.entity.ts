@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../../users/entities/user-role.entity';
+import { BigIntTransformer } from '../../../common/transformers/bigint.transformer';
 
 @Entity('roles')
 export class Role {
@@ -17,8 +18,12 @@ export class Role {
   id: bigint;
 
   @ApiProperty({ description: '业务角色ID', example: 10001 })
-  @Column({ type: 'bigint', unique: true })
-  role_id: bigint;
+  @Column({
+    type: 'bigint',
+    transformer: new BigIntTransformer(),
+    unique: true,
+  })
+  role_id: string;
 
   @ApiProperty({ description: '角色名称', example: '管理员' })
   @Column({ length: 50 })

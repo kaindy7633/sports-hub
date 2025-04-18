@@ -136,15 +136,16 @@ export class UsersService {
    * @param userId 业务用户ID
    * @returns 用户实体
    */
-  async findOne(userId: bigint): Promise<User> {
+  async findOne(userId: string): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { user_id: userId },
-        relations: ['auths', 'roles'],
-      });
+      // 直接使用原始SQL查询以避免类型转换问题
+      const [user] = await this.userRepository.query(
+        'SELECT * FROM users WHERE user_id = $1 AND deleted_at IS NULL',
+        [userId],
+      );
 
       if (!user) {
-        throw new ResourceNotFoundException('用户', userId.toString());
+        throw new ResourceNotFoundException('用户', userId);
       }
 
       return user;
@@ -163,7 +164,7 @@ export class UsersService {
    * @param updateUserDto 更新内容
    * @returns 更新后的用户
    */
-  async update(userId: bigint, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const user = await this.findOne(userId);
 
@@ -191,7 +192,7 @@ export class UsersService {
    * 删除用户
    * @param userId 业务用户ID
    */
-  async remove(userId: bigint): Promise<void> {
+  async remove(userId: string): Promise<void> {
     try {
       const user = await this.findOne(userId);
       await this.userRepository.softDelete({ id: user.id });
@@ -210,7 +211,7 @@ export class UsersService {
    * @returns
    */
   async addUserAuth(authData: {
-    userId: bigint;
+    userId: string;
     identityType: string;
     identifier: string;
     credential: string;
@@ -323,7 +324,7 @@ export class UsersService {
    * @param roleId 业务角色ID
    * @returns
    */
-  async assignRole(userId: bigint, roleId: bigint): Promise<UserRole> {
+  async assignRole(userId: string, roleId: string): Promise<UserRole> {
     try {
       // 查找用户和角色
       const user = await this.findOne(userId);

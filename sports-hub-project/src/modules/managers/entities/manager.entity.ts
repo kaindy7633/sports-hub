@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { BigIntTransformer } from '../../../common/transformers/bigint.transformer';
 
 @Entity('managers')
 export class Manager {
@@ -15,8 +16,8 @@ export class Manager {
   id: bigint;
 
   @ApiProperty({ description: '管理员ID', example: '0' })
-  @Column({ type: 'bigint', default: 0 })
-  manager_id: bigint;
+  @Column({ type: 'bigint', transformer: new BigIntTransformer(), default: 0 })
+  manager_id: string;
 
   @ApiProperty({ description: '管理员账号', example: 'admin' })
   @Column({ type: 'varchar', length: 50, unique: true })

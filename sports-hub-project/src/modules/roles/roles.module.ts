@@ -7,13 +7,13 @@ import { Role } from './entities/role.entity';
 import { UserRole } from '../users/entities/user-role.entity';
 import { User } from '../users/entities/user.entity';
 import { TokenModule } from '../../core/token/token.module';
-import { SnowflakeModule } from '../../core/snowflake/snowflake.module'; // 添加这行
+import { SnowflakeModule } from '../../core/snowflake/snowflake.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Role, UserRole, User]),
     TokenModule,
-    SnowflakeModule, // 添加这行
+    SnowflakeModule,
   ],
   controllers: [RolesController],
   providers: [RolesService],

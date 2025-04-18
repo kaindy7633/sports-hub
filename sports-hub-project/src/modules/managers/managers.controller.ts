@@ -66,7 +66,7 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async findOne(
-    @Param('managerId', ParseIntPipe) managerId: bigint,
+    @Param('managerId', ParseIntPipe) managerId: string,
   ): Promise<Manager> {
     return this.managersService.findOne(managerId);
   }
@@ -81,7 +81,7 @@ export class ManagersController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async update(
-    @Param('managerId', ParseIntPipe) managerId: bigint,
+    @Param('managerId', ParseIntPipe) managerId: string,
     @Body() updateManagerDto: UpdateManagerDto,
   ): Promise<Manager> {
     return this.managersService.update(managerId, updateManagerDto);
@@ -93,7 +93,7 @@ export class ManagersController {
   @ApiResponse({ status: HttpStatus.OK, description: '删除成功' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '管理员不存在' })
   async remove(
-    @Param('managerId', ParseIntPipe) managerId: bigint,
+    @Param('managerId', ParseIntPipe) managerId: string,
   ): Promise<void> {
     return this.managersService.remove(managerId);
   }

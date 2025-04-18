@@ -74,7 +74,23 @@ export class ManagersService {
    * @returns 管理员列表
    */
   async findAll(): Promise<Manager[]> {
+    // 使用select选项排除敏感字段
     return await this.managerRepository.find({
+      select: {
+        id: true,
+        manager_id: true,
+        username: true,
+        parent_id: true,
+        nick_name: true,
+        real_name: true,
+        avatar: true,
+        phone: true,
+        email: true,
+        status: true,
+        created_at: true,
+        updated_at: true,
+        deleted_at: true,
+      },
       order: { created_at: 'DESC' },
     });
   }
@@ -105,9 +121,9 @@ export class ManagersService {
     try {
       this.logger.debug(`Searching for manager with business ID: ${managerId}`);
 
-      // 直接使用原始SQL查询以避免类型转换问题
+      // 直接使用原始SQL查询以避免类型转换问题，明确指定需要的字段，排除敏感信息
       const [manager] = await this.managerRepository.query(
-        'SELECT * FROM managers WHERE manager_id = $1 AND deleted_at IS NULL',
+        'SELECT id, manager_id, username, parent_id, nick_name, real_name, avatar, phone, email, status, created_at, updated_at, deleted_at FROM managers WHERE manager_id = $1 AND deleted_at IS NULL',
         [managerId],
       );
 
@@ -158,20 +174,17 @@ export class ManagersService {
       // 查询要更新的管理员是否存在
       const manager = await this.findOne(managerId);
 
-      // 如果更新了账号，检查是否与其他管理员冲突
+      // 禁止修改管理员账号
       if (
         updateManagerDto.username &&
         updateManagerDto.username !== manager.username
       ) {
-        const existingManager = await this.managerRepository.findOne({
-          where: { username: updateManagerDto.username },
-        });
+        throw new ConflictException('管理员账号不允许被修改');
+      }
 
-        if (existingManager && existingManager.id !== manager.id) {
-          throw new ConflictException(
-            `账号 "${updateManagerDto.username}" 已存在`,
-          );
-        }
+      // 移除username字段，确保不会被更新
+      if (updateManagerDto.username) {
+        delete updateManagerDto.username;
       }
 
       // 如果更新密码，需要重新加密

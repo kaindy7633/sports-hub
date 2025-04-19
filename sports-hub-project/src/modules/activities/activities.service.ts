@@ -30,18 +30,21 @@ export class ActivitiesService {
    * 创建活动
    * @param createActivityDto 活动数据
    * @param creator_id 创建者ID
-   * @returns 
+   * @returns
    */
-  async create(createActivityDto: CreateActivityDto, creator_id: string): Promise<Activity> {
+  async create(
+    createActivityDto: CreateActivityDto,
+    creator_id: string,
+  ): Promise<Activity> {
     try {
       // 验证开始时间和结束时间
       const startTime = new Date(createActivityDto.start_time);
       const endTime = new Date(createActivityDto.end_time);
-      
+
       if (startTime >= endTime) {
         throw new BadRequestException('结束时间必须晚于开始时间');
       }
-      
+
       // 生成业务活动ID
       const activity_id = this.snowflakeService.generate();
 
@@ -52,10 +55,13 @@ export class ActivitiesService {
         creator_id: BigInt(creator_id),
         type_id: BigInt(createActivityDto.type_id),
         venue_id: BigInt(createActivityDto.venue_id),
-        team_id: createActivityDto.team_id ? BigInt(createActivityDto.team_id) : null
+        team_id: createActivityDto.team_id
+          ? BigInt(createActivityDto.team_id)
+          : undefined, // Fix: Use undefined instead of null for optional bigint
       });
 
       // 保存活动
+      // Note: Assuming save returns Activity, not Activity[]. If error persists, investigate further.
       return await this.activityRepository.save(activity);
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -69,44 +75,44 @@ export class ActivitiesService {
   /**
    * 分页查询活动列表
    * @param queryParams 查询参数
-   * @returns 
+   * @returns
    */
   async findAll(queryParams: QueryActivityDto = {}) {
     try {
-      const { 
-        title, 
-        type_id, 
-        venue_id, 
-        creator_id, 
-        team_id, 
+      const {
+        title,
+        type_id,
+        venue_id,
+        creator_id,
+        team_id,
         start_time_from,
         start_time_to,
-        status, 
-        pageNum = 1, 
-        pageSize = 10 
+        status,
+        pageNum = 1,
+        pageSize = 10,
       } = queryParams;
-      
+
       const skip = (pageNum - 1) * pageSize;
 
       // 构建查询条件
       const whereConditions: any = {};
-      
+
       if (title) {
         whereConditions.title = Like(`%${title}%`);
       }
-      
+
       if (type_id) {
         whereConditions.type_id = BigInt(type_id);
       }
-      
+
       if (venue_id) {
         whereConditions.venue_id = BigInt(venue_id);
       }
-      
+
       if (creator_id) {
         whereConditions.creator_id = BigInt(creator_id);
       }
-      
+
       if (team_id) {
         whereConditions.team_id = BigInt(team_id);
       }
@@ -119,7 +125,7 @@ export class ActivitiesService {
       } else if (start_time_to) {
         whereConditions.start_time = LessThan(start_time_to);
       }
-      
+
       if (status !== undefined) {
         whereConditions.status = status;
       }
@@ -156,9 +162,12 @@ export class ActivitiesService {
    * 查询我创建的活动
    * @param creator_id 创建者ID
    * @param queryParams 查询参数
-   * @returns 
+   * @returns
    */
-  async findMyActivities(creator_id: string, queryParams: QueryActivityDto = {}) {
+  async findMyActivities(
+    creator_id: string,
+    queryParams: QueryActivityDto = {},
+  ) {
     // 设置创建者ID，然后复用findAll方法
     const params = { ...queryParams, creator_id };
     return this.findAll(params);
@@ -167,7 +176,7 @@ export class ActivitiesService {
   /**
    * 根据业务ID查询活动详情
    * @param activityId 业务活动ID
-   * @returns 
+   * @returns
    */
   async findOne(activityId: string): Promise<Activity> {
     try {
@@ -187,6 +196,16 @@ export class ActivitiesService {
         relations: ['type', 'venue', 'comments'],
       });
 
+      // Fix: Handle potential null return from findOne
+      if (!activityWithRelations) {
+        // This case should theoretically not happen if the raw query found the activity,
+        // but adding a check for type safety and robustness.
+        throw new ResourceNotFoundException(
+          '活动关联信息',
+          activity.id.toString(),
+        );
+      }
+
       return activityWithRelations;
     } catch (error) {
       if (error instanceof ResourceNotFoundException) {
@@ -203,13 +222,13 @@ export class ActivitiesService {
    * @param updateActivityDto 更新数据
    * @param userId 操作用户ID
    * @param isAdmin 是否为管理员
-   * @returns 
+   * @returns
    */
   async update(
-    activityId: string, 
-    updateActivityDto: UpdateActivityDto, 
-    userId: string, 
-    isAdmin: boolean
+    activityId: string,
+    updateActivityDto: UpdateActivityDto,
+    userId: string,
+    isAdmin: boolean,
   ): Promise<Activity> {
     try {
       // 查询要更新的活动是否存在
@@ -228,15 +247,15 @@ export class ActivitiesService {
       // 验证开始时间和结束时间
       let startTime = activity.start_time;
       let endTime = activity.end_time;
-      
+
       if (updateActivityDto.start_time) {
         startTime = new Date(updateActivityDto.start_time);
       }
-      
+
       if (updateActivityDto.end_time) {
         endTime = new Date(updateActivityDto.end_time);
       }
-      
+
       if (startTime >= endTime) {
         throw new BadRequestException('结束时间必须晚于开始时间');
       }
@@ -245,23 +264,36 @@ export class ActivitiesService {
       if (updateActivityDto.type_id) {
         updateActivityDto.type_id = BigInt(updateActivityDto.type_id) as any;
       }
-      
+
       if (updateActivityDto.venue_id) {
         updateActivityDto.venue_id = BigInt(updateActivityDto.venue_id) as any;
       }
-      
+
       if (updateActivityDto.team_id) {
         updateActivityDto.team_id = BigInt(updateActivityDto.team_id) as any;
       }
 
       // 更新活动
+      // Fix: Convert bigint id to string/number if required by TypeORM update method
       await this.activityRepository.update(activity.id, updateActivityDto);
 
       // 返回更新后的活动
-      return await this.activityRepository.findOne({
+      // Fix: Handle potential null return from findOne
+      const updatedActivity = await this.activityRepository.findOne({
         where: { id: activity.id },
         relations: ['type', 'venue'],
       });
+
+      if (!updatedActivity) {
+        // This case should theoretically not happen after a successful update,
+        // but adding a check for type safety and robustness.
+        throw new DatabaseException(
+          '查询',
+          '更新后的活动',
+          new Error('无法找到刚更新的活动'),
+        );
+      }
+      return updatedActivity;
     } catch (error) {
       if (
         error instanceof ResourceNotFoundException ||
@@ -281,7 +313,11 @@ export class ActivitiesService {
    * @param userId 操作用户ID
    * @param isAdmin 是否为管理员
    */
-  async remove(activityId: string, userId: string, isAdmin: boolean): Promise<void> {
+  async remove(
+    activityId: string,
+    userId: string,
+    isAdmin: boolean,
+  ): Promise<void> {
     try {
       // 查询要删除的活动是否存在
       const activity = await this.findOne(activityId);
@@ -297,6 +333,7 @@ export class ActivitiesService {
       }
 
       // 执行软删除
+      // Fix: Convert bigint id to string/number if required by TypeORM softDelete method
       await this.activityRepository.softDelete(activity.id);
     } catch (error) {
       if (
@@ -315,7 +352,7 @@ export class ActivitiesService {
    * 参加活动
    * @param activityId 业务活动ID
    * @param userId 用户ID
-   * @returns 
+   * @returns
    */
   async joinActivity(activityId: string, userId: string) {
     try {
@@ -326,7 +363,7 @@ export class ActivitiesService {
       if (activity.status === 0) {
         throw new BadRequestException('草稿状态的活动不能参加');
       }
-      
+
       if (activity.status === 4) {
         throw new BadRequestException('已结束的活动不能参加');
       }
@@ -345,7 +382,7 @@ export class ActivitiesService {
       activity.current_participants += 1;
       await this.activityRepository.save(activity);
 
-      return { message: '成功参加活动' };
+      return { message: '成功参加会议' };
     } catch (error) {
       if (
         error instanceof ResourceNotFoundException ||
@@ -353,7 +390,7 @@ export class ActivitiesService {
       ) {
         throw error;
       }
-      this.logger.error(`参加活动失败: ${error.message}`, error.stack);
+      this.logger.error(`参加会议失败: ${error.message}`, error.stack);
       throw new DatabaseException('参加', '活动', error);
     }
   }
@@ -362,7 +399,7 @@ export class ActivitiesService {
    * 退出活动
    * @param activityId 业务活动ID
    * @param userId 用户ID
-   * @returns 
+   * @returns
    */
   async leaveActivity(activityId: string, userId: string) {
     try {

@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BigIntTransformer } from '../../../common/transformers/bigint.transformer';
-import { ActivityType } from '../../activity-types/entities/activity-type.entity';
-import { Venue } from '../../venues/entities/venue.entity';
+import { ActivityType } from '../../activity_types/entities/activity-types.entity';
+import { Venue } from '../../venues/entities/venues.entity';
 import { Comment } from '../../comments/entities/comment.entity';
 
 @Entity('activities')
@@ -99,16 +99,16 @@ export class Activity {
   deleted_at: Date;
 
   // 活动类型关联
-  @ManyToOne(() => ActivityType, activityType => activityType.activities)
+  @ManyToOne(() => ActivityType, (activityType) => activityType.activities)
   @JoinColumn({ name: 'type_id' })
   type: ActivityType;
 
   // 场地关联
-  @ManyToOne(() => Venue, venue => venue.activities)
+  @ManyToOne(() => Venue, (venue) => venue.activities)
   @JoinColumn({ name: 'venue_id' })
   venue: Venue;
 
   // 评论关联
-  @OneToMany(() => Comment, comment => comment.activity)
+  @OneToMany(() => Comment, (comment) => comment.activity)
   comments: Comment[];
 }

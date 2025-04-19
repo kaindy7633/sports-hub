@@ -23,6 +23,11 @@ import {
 } from './config/configuration';
 import { RolesModule } from './modules/roles/roles.module';
 import { ManagersModule } from './modules/managers/managers.module';
+import { ActivityTypesModule } from './modules/activity-types/activity-types.module';
+import { VenuesModule } from './modules/venues/venues.module';
+import { ActivitiesModule } from './modules/activities/activities.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -47,6 +52,11 @@ import { ManagersModule } from './modules/managers/managers.module';
     AuthModule,
     RolesModule,
     ManagersModule,
+    ActivityTypesModule,
+    VenuesModule,
+    ActivitiesModule,
+    MessagesModule,
+    CommentsModule,
   ],
 })
 export class AppModule implements NestModule {

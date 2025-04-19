@@ -9,6 +9,7 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,9 +22,13 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../core/token/jwt-auth.guard';
+import { RoleGuard, Roles } from '../../core/token/role.guard';
 
 @ApiTags('users')
 @ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles('admin', 'manager')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

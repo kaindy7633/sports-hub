@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -15,9 +16,13 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../core/token/jwt-auth.guard';
+import { RoleGuard, Roles } from '../../core/token/role.guard';
 
 @ApiTags('teams')
 @ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles('admin', 'manager')
 @Controller('teams')
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}

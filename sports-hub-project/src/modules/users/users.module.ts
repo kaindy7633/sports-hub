@@ -8,11 +8,13 @@ import { UserAuth } from './entities/user-auth.entity';
 import { Role } from '../roles/entities/role.entity';
 import { UserRole } from './entities/user-role.entity';
 import { SnowflakeModule } from '../../core/snowflake/snowflake.module';
+import { TokenModule } from '../../core/token/token.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserAuth, Role, UserRole]),
     SnowflakeModule,
+    TokenModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
